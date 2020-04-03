@@ -70,6 +70,20 @@ class block_uploadvimeo extends block_base {
     function has_config() {
         return true;
     }
+    
+    /**
+     * This is a list of places where the block may or
+     * may not be added.
+     */
+    public function applicable_formats() {
+        return array (
+                'all' => false,
+                'site' => false,
+                'site-index' => false,
+                'course-view' => true,
+                'my' => false
+        );
+    }
 	
 
 }

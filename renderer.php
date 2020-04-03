@@ -42,42 +42,16 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
 
     }
     
-    /**
-     * Display form upload using Moodle
-     * 
-     * @deprecated 
-     * @param string $form
-     * @param int $blockid
-     * @param int $courseid
-     */
-    function display_form_upload($form, $blockid, $courseid) {
-        
-        $data = new stdClass();
-        $data->form = $form;
-        $data->heading = get_string('pluginname', 'block_uploadvimeo');
-        
-        echo $this->output->header();
-        echo $this->render_from_template('block_uploadvimeo/form', $data);
-        echo $this->output->footer();
-        
-    }
-    
 
-    /**
-     * Display form to upload video and the list of videos.
-     * @param int $courseid
-     * @param int $userid
-     * @param string $action
-     */
-    function display_iframe(int $courseid, int $userid, string $urivideo = null){
+    function display_page_videos(int $courseid, int $userid, string $urivideo = null, $config){
         
         global $DB;
-		$folderid = false;
-        
+		
+        $folderid = false;        
         
         // Connect to Vimeo.
-        $config = require(__DIR__ . '/vimeo_init.php');
-        $client = new Vimeo($config['client_id'], $config['client_secret'], $config['access_token']);
+		require_once(__DIR__ . '/vendor/autoload.php');
+        $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
         
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $usernamefolder = 'MoodleUpload_' . $user->username;

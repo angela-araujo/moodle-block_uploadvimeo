@@ -37,7 +37,11 @@ $capabilities = array (
                 'captype' => 'write',
                 'contextlevel' => CONTEXT_SYSTEM,
                 'archetypes' => array (
-                        'user' => CAP_ALLOW
+                        'editingteacher' => CAP_ALLOW,
+                        'teacher' => CAP_ALLOW,
+                        'manager' => CAP_ALLOW,
+                        'student' => CAP_PROHIBIT,
+                        'guest' => CAP_PROHIBIT
                 ),
 
                 'clonepermissionsfrom' => 'moodle/my:manageblocks'
@@ -51,22 +55,25 @@ $capabilities = array (
                 'contextlevel' => CONTEXT_BLOCK,
                 'archetypes' => array (
                         'editingteacher' => CAP_ALLOW,
-                        'manager' => CAP_ALLOW
+                        'teacher' => CAP_ALLOW,
+                        'manager' => CAP_ALLOW,
+                        'student' => CAP_PROHIBIT,
+                        'guest' => CAP_PROHIBIT
                 ),
 
                 'clonepermissionsfrom' => 'moodle/site:manageblocks'
         ),
 
-        // Restrict access to view page.
-        'block/uploadvimeo:seeviewpage' => array (
-                'captype' => 'read',
-                'contextlevel' => CONTEXT_USER,
+        // Restrict access to page videos.
+        'block/uploadvimeo:seepagevideos' => array (
+                'captype' => 'write',
+                'contextlevel' => CONTEXT_COURSE,
                 'archetypes' => array (
                         'editingteacher' => CAP_ALLOW,
                         'teacher' => CAP_ALLOW,
                         'manager' => CAP_ALLOW,
-                        'student' => CAP_ALLOW,
-                        'guest' => CAP_PREVENT
+                        'student' => CAP_PROHIBIT,
+                        'guest' => CAP_PROHIBIT
                 ),
                 'clonepermissionsfrom' => 'moodle/site:manageblocks'
         )

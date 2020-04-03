@@ -39,3 +39,11 @@ $string['instructions'] = 'Para enviar um vídeo, arraste-o para dentro desta á
 $string['text_line1'] = 'Aqui são apresentados os vídeos que já foram enviados por você para a plataforma Vimeo. ';
 $string['text_line2_with_video'] = 'Clique no vídeo desejado para obter seu código de incorporação e poder incluí-lo no seu conteúdo.';
 $string['text_line2_empty'] = 'No momento, não há vídeos disponíveis.';
+
+// Capability strings.
+$string['uploadvimeo:myaddinstance'] = 'Adicionar bloco Envio de Vídeos - Vimeo';
+$string['uploadvimeo:addinstance'] = 'Adicionar bloco Envio de Vídeos - Vimeo';
+$string['uploadvimeo:seepagevideos'] = 'Ver página de Envio de vídeos - Vimeo';
+
+// Upload video.
+$string['text_upload_sucess'] = '<b>ATENÇÃO</b>: o vídeo precisa ser processado pelos servidores do Vimeo e pode levar alguns minutos para poder ser exibido no seu conteúdo.';

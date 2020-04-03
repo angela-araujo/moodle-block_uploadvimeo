@@ -44,9 +44,10 @@ require_login();
 //$event = \block_uploadvimeo\event\block_page_viewed::create(['context' => $PAGE->context]);
 //$event->trigger();
 
+$config = get_config('block_uploadvimeo');
 
-require_capability('moodle/course:update', $coursecontext);
+require_capability('block/uploadvimeo:seepagevideos', $coursecontext);
 
 $renderer = $PAGE->get_renderer('block_uploadvimeo');
-$renderer->display_iframe($courseid, $userid, $urivideo);
+$renderer->display_page_videos($courseid, $userid, $urivideo, $config);
 

@@ -1,0 +1,126 @@
+.block-uploadvimeo .form-item .form-setting .defaultsnext {
+    display: inline-block;
+}
+
+.block-uploadvimeo ul {
+	list-style-type: none;
+}
+.block-uploadvimeo li {
+	line-height: 60px;
+}
+.block-uploadvimeo li img {
+	height: 40px;
+}
+
+.block-uploadvimeo .codeembed {
+	width: 80%;
+    height: 90px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,.125);
+    margin-left: 58px;
+    margin-bottom: 15px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    font-family: monospace;
+    readonly: readonly;
+}
+
+.block-uploadvimeo .fa-code:hover {
+    color: gray;
+}
+
+
+.block-uploadvimeo .fa-code:before {
+    vertical-align: middle;
+}
+
+.block-uploadvimeo a btn btn-link {
+    text-decoration: none;
+}
+
+
+  /* Space out content a bit */
+  body {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  html, body {
+    height: 100%;
+}
+
+  /* Everything but the jumbotron gets side spacing for mobile first views */
+  .header,
+  .footer {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  /* Custom page header */
+  .header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    position: relative;
+  }
+
+  /* Custom page footer */
+  .footer {
+    padding-top: 19px;
+    color: #777;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  /* Customize container */
+  @media (min-width: 768px) {
+    .container {
+      max-width: 730px;
+    }
+  }
+  .container-narrow > hr {
+    margin: 30px 0;
+  }
+
+  /* Main marketing message and sign up button */
+  .draggable {
+    text-align: center;
+    border: 1px solid #92b0b3;
+    /* border-bottom: 1px solid #e5e5e5; */
+    outline: 2px dashed #92b0b3;
+	outline-offset: -10px;
+	background-color: white;
+	padding: 20px;
+  }
+
+
+  /* Responsive: Portrait tablets and up */
+  @media screen and (min-width: 768px) {
+    /* Remove the padding we set earlier */
+    .header,
+    .footer {
+      padding-right: 0;
+      padding-left: 0;
+    }
+    /* Space out the masthead */
+    .header {
+      margin-bottom: 30px;
+    }
+
+  }
+
+  .wrapper {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -4em;
+}
+.footer, .push {
+    height: 4em;
+}
+
+pre {
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}

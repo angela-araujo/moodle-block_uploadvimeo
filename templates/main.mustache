@@ -1,0 +1,37 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_uploadvimeo/main
+
+    This template renders the main content area for the upload vimeo block.
+
+    Example context (json):
+    {
+    "attributes": [                                                                                                             
+            { "name": "url", "value": "http://localhost/moodle/uploadvimeo/uploadvideo.php?" },
+        ] 
+    	
+    }
+}}
+
+<div id="block-uploadvimeo-{{uniqid}}" class="block-uploadvimeo block-cards" data-region="uploadvimeo" role="navigation" style="text-align: center;">
+
+	<h6>{{#str}}textblock, block_uploadvimeo{{/str}}</h6><br>
+	<a href="{{{url}}}" class="btn btn-primary">{{#str}}uploadbutton, block_uploadvimeo{{/str}}</a>
+
+
+</div>

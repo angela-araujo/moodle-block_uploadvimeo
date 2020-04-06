@@ -8,22 +8,26 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * block_uploadvimeo shortcodes
  *
- * @package    block_uploadvimeo
- * @copyright  2020 CCEAD PUC-Rio <angela@ccead.puc-rio.br>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package block_uploadvimeo
+ * @copyright 2020 CCEAD PUC-Rio
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_uploadvimeo'; // Full name of the plugin (used for diagnostics)
-$plugin->version   = 2020040301;       	// The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2010112400;       	// Requires this Moodle version: Moodle 2.0 - 24 November 2010 
+$shortcodes = [
+        'vimeo' => [
+                'callback' => 'block_uploadvimeo\shortcodes::vimeoembed',
+                'wraps' => false,
+                'description' => 'shortcode:vimevideo'
+        ]
+];

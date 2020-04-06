@@ -123,11 +123,16 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
             if ($videos['body']['total'] <> '0') { // OK
                 
                 $textmyvideos .= '<br><br>' . get_string('text_line2_with_video', 'block_uploadvimeo') . '<br><br>';
+                
                 foreach ($videos['body']['data'] as $videokey => $videovalue) {
+                    $videoid = str_replace('/videos/', '', $videovalue['uri']);
+                    $uri = 'https://player.vimeo.com/video/'.$videoid.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
+                    $htmlembed = '<iframe src="'. $uri. '" width="600" height="400" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title=""></iframe>';
+                    
                     $listmyvideos[] = array('name' => $videovalue['name'],
                             'linkvideo' => $videovalue['link'],
-                            'videoid' => str_replace('/videos/', '', $videovalue['uri']), //[uri] => /videos/401242079
-                            'htmlembed' => '' . $videovalue['embed']['html'] . '',
+                            'videoid' => $videoid, //[uri] => /videos/401242079
+                            'htmlembed' => $htmlembed, //'' . $videovalue['embed']['html'] . '',
                             'thumbnail' => $videovalue['pictures']['sizes'][0]['link'],
                     );
 					 
@@ -159,57 +164,6 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         echo $this->render_from_template('block_uploadvimeo/form', $data);
         echo $this->output->footer();
         
-    }
-    
-    protected function get_all_videos_from_folder() {
-        return ;
-    }
-    
-    protected function upload_video_to_folder() {
-        
-        //@TODO 
-        /**
-         * @see https://developer.vimeo.com/api/upload/videos#resumable-approach
-         * 1. Create the video
-         *      Make an authenticated POST request to /me/videos:
-         *      POST https://api.vimeo.com/me/videos
-         *      
-         * 2. Upload the video file
-         *      PATCH the binary data of the entire video file to the URL from upload.upload_link, along with some custom tus headers:
-         *      PATCH {upload.upload_link}
-         *      
-         * 3. Verify the upload
-         *      To monitor the progress of the upload, send a HEAD request to upload.upload_link:
-         *      HEAD {upload.upload_link}           
-         */
-
-        // Connect to Vimeo.
-        $config = require(__DIR__ . '/vimeo_init.php');
-        $client = new Vimeo($config['client_id'], $config['client_secret'], $config['access_token']);
-
-        // Step 1: Creating video.
-        $parambody = json_decode('{
-            "upload": {
-            "approach": "tus",
-            "size": "524288000"
-            }
-        }');
-        $autorization = 'bearer '.$config['access_token'];
-        $response = $client->request('/me/videos', $parambody, 'POST', true, array('Authorization' => $autorization,
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/vnd.vimeo.*+json;version=3.4',
-        ) );
-        
-        if ($response['status'] != '200') {
-            // print error
-        }
-        
-        // Step 2:
-        
-        
-        
-        
-        return ;
     }
     
     

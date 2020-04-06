@@ -151,7 +151,8 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         
         $data->class = 'block_uploadviemto_links';
         $data->myvideos = $listmyvideos;
-		$data->textmyvideos = $textmyvideos;								
+		$data->textmyvideos = $textmyvideos;	
+		$data->accesstoken = $config->config_accesstoken;
         
         // Start output to browser.
         echo $this->output->header();

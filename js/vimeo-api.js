@@ -2,7 +2,6 @@
 (function(root, factory) {
     root.VimeoUpload = factory()
 }(this, function() {
-
     var defaults = {
         api_url: 'https://api.vimeo.com',
         name: 'Nome Padrão',
@@ -10,7 +9,7 @@
         contentType: 'application/offset+octet-stream',
         api_version: '3.4',
         token: null,
-        file: {},        
+        file: {},  
         onComplete: function() {},
         onProgress: function() {},
         onError: function() {}
@@ -32,7 +31,7 @@
     var me = function(opts) {
         
         for (var i in defaults) {
-            this[i] = (opts[i] !== undefined) ? opts[i] : defaults[i]
+            this[i] = (opts[i] !== undefined) ? opts[i] : defaults[i];
         }
         this.accept = 'application/vnd.vimeo.*+json;version=' + this.api_version
 
@@ -42,7 +41,6 @@
             name: (opts.name > '') ? opts.name : defaults.name,
             description: (opts.description > '') ? opts.description : defaults.description,
         }
-        
         if( opts.extraOpts ) {
             this.videoData = Object.assign({}, this.videoData,  opts.extraOpts);    
         }    

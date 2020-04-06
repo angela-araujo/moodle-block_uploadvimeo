@@ -13,11 +13,8 @@
 }
 
 .block-uploadvimeo .codeembed {
-	width: 80%;
-    height: 90px;
     overflow: hidden;
     border: 1px solid rgba(0,0,0,.125);
-    margin-left: 58px;
     margin-bottom: 15px;
     background-color: #f8f9fa;
     padding: 15px;
@@ -42,6 +39,57 @@
     color: inherit;
     text-decoration: none;
     cursor: pointer; 
+}
+
+.block-uploadvimeo .nav-tabs>li>a, .block-uploadvimeo .nav-tabs>li>a, .block-uploadvimeo .nav-tabs>li>a {
+    margin-right: 2px;
+    line-height: 1.4;
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+	text-decoration: none;	
+}
+.block-uploadvimeo .nav-tabs>li>a.active, .block-uploadvimeo .nav-tabs>li>a.active:focus, .block-uploadvimeo .nav-tabs>li>a.active:hover {
+    color: #666;
+	font-weight:500;
+    cursor: default;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+	text-decoration: none;
+}
+.block-uploadvimeo .nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 10px;
+}
+
+.block-uploadvimeo .container {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 70px;
+}
+.block-uploadvimeo .nav-tabs>li {
+    float: left;
+    margin-bottom: -1px;
+}
+.block-uploadvimeo .btn-sm {
+	border-radius: .3rem;
+}
+
+
+.block-uploadvimeo .modal-content {
+	height: 400px;
+}
+
+.block-uploadvimeo iframe {
+    position: absolute;
+    width: 90%;
+    height: 90%;
+    border: 0;
+	left:25px;
 }
 
   /* Space out content a bit */

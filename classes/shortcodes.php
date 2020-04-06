@@ -19,7 +19,7 @@ class shortcodes {
         if ($shortcode == 'vimeo') {            
         
             $uri = 'https://player.vimeo.com/video/'.$args['video'].'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
-            return '<iframe src="'. $uri. '" width="600" height="400" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title="'.$args['title'].'"></iframe>';
+            return '<iframe src="'. $uri. '" width="600" height="400" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title=""></iframe>';
         } else {
             
             return '';

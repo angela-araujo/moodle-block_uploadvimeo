@@ -47,3 +47,6 @@ $string['uploadvimeo:seepagevideos'] = 'Ver página de Envio de vídeos - Vimeo'
 
 // Upload video.
 $string['text_upload_sucess'] = '<b>ATENÇÃO</b>: o vídeo precisa ser processado pelos servidores do Vimeo e pode levar alguns minutos para poder ser exibido no seu conteúdo.';
+
+// Shortcodes.
+$string['shortcode:vimevideo'] = 'Shortcode para embedar vídeo vimeo';

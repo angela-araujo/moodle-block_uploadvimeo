@@ -9,7 +9,7 @@
         MY_APP.sendFile = sendFile;   
     }
 
-    function sendFile(files){
+    function sendFile(files, accesstoken){
 
       const file = files[0];
 
@@ -56,14 +56,15 @@
           }).catch(swal.noop)
 
 
-          
           let send = (time, wait, parameter) => {
             ;(new VimeoUpload({
               name: parameter.title,
               description: parameter.description,
-              extraOpts: MY_APP.config.vimeOpts,
-              file: file,
-              token: MY_APP.config.token,
+              //extraOpts: MY_APP.config.vimeOpts,
+			  extraOpts: {},
+			  file: file,
+              //token: MY_APP.config.token,
+			  token: accesstoken,
               onError: function(data) {
                 wait.close();
                 Swal.fire({
@@ -80,21 +81,23 @@
 
               },
               onComplete: function(videoId, metadata) {
-                
                 wait.close();
 
-                var url = 'https://vimeo.com/' + videoId
-
-                for (let index = 0; index < MY_APP.config.whitelistDomains.length; index++) {
-                  const domain = MY_APP.config.whitelistDomains[index];
-                  this.addDomain(videoId, domain);                  
+                //var url = 'https://vimeo.com/' + videoId;
+				
+				var whitelistDomains = ['ead.puc-rio.br'];
+                //for (let index = 0; index < MY_APP.config.whitelistDomains.length; index++) {
+				for (let index = 0; index < whitelistDomains.length; index++) {
+                  //const domain = MY_APP.config.whitelistDomains[index];
+				  const domain = whitelistDomains[index];
+                  this.addDomain(videoId, domain);   
                 }                
 
                 $("#success_alert").show();
                 //$("#success_alert > pre").text(metadata.embed.html);
                 //$("#success_alert > pre").text((metadata.uri)); //$("#success_alert > pre").text(Object.values(metadata.uri));
                 var urlredirect = location.href + '&urivideo=' + metadata.uri;
-                $(location).attr('href', urlredirect);
+                setTimeout(function(){$(location).attr('href', urlredirect);}, 3000);
 
               }
             })).upload();         

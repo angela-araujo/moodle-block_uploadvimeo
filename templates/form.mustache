@@ -32,7 +32,6 @@
 }}
     <link rel="stylesheet" href="style.css">
 
-
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <!--
@@ -42,13 +41,55 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
     <script src="js/util.js?121213141415"></script>
+<!--
     <script src="js/config.js?121213141415"></script>    
+-->	
     <script src="js/vimeo-api.js?121213141415"></script>
     <script src="js/app.js?121213141415"></script>        
 
-<style>
 
-</style>
+	<script>
+		function copyTextToClipboard(text) {
+		  var textArea = document.createElement("textarea");
+
+		  // Place in top-left corner of screen regardless of scroll position.
+		  textArea.style.position = 'fixed';
+		  textArea.style.top = 0;
+		  textArea.style.left = 0;
+
+		  // Ensure it has a small width and height. Setting to 1px / 1em
+		  // doesn't work as this gives a negative w/h on some browsers.
+		  textArea.style.width = '2em';
+		  textArea.style.height = '2em';
+
+		  // We don't need padding, reducing the size if it does flash render.
+		  textArea.style.padding = 0;
+
+		  // Clean up any borders.
+		  textArea.style.border = 'none';
+		  textArea.style.outline = 'none';
+		  textArea.style.boxShadow = 'none';
+
+		  // Avoid flash of white box if rendered for any reason.
+		  textArea.style.background = 'transparent';
+
+		  textArea.value = text;
+
+		  document.body.appendChild(textArea);
+		  textArea.focus();
+		  textArea.select();
+
+		  try {
+			var successful = document.execCommand('copy');
+			//var msg = successful ? 'successful' : 'unsuccessful';
+			//console.log('Copying text command was ' + msg);
+		  } catch (err) {
+			console.log('Não foi possível copiar para o clipboard.');
+		  }
+		  document.body.removeChild(textArea);
+		}
+
+	</script>
 
 <div id="block-uploadvimeo-{{uniqid}}" class="block-uploadvimeo block-cards" data-region="uploadvimeo" role="navigation">
 	<div class="card">
@@ -63,6 +104,13 @@
 					  Enviar Vídeo <input id="browse" type="file" style="display: none;">
 					</label>
 				</div>
+			</div>
+			<br>
+			<div class="alert alert-warning alert-dismissible fade show" role="alert" style="max-width:80%;">
+			  <strong>Atenção:</strong> Ao enviar vídeos, você deve respeitar as regras do Vimeo, carregando apenas vídeos feitos por você que não tenham conteúdo impróprio. Para maiores informações, <a href="https://vimeo.com/help/guidelines#video" target="_blank">clique aqui</a>.
+			  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
 			</div>
 			<br>
 			<div id="success_alert" class="alert alert-success" role="alert" style="display: none;">
@@ -91,15 +139,67 @@
 			<ul>
 				{{# myvideos }}
 				<li>
-					<img src="{{ thumbnail }}" class="rounded">				
 					<a class="btn btn-link" data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}">
-					{{ name }}
-					<i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i>					
+						<img src="{{ thumbnail }}" class="rounded">				
+						<span style="margin-left:10px;">{{ name }}</span>
+					</a>
+					<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
+					</a>
+					<a data-toggle="modal" data-target="#play_{{ videoid }}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
 					</a>
 				</li>
+				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
-					<textarea class="codeembed rounded" readonly>{{ htmlembed }}</textarea>
+					<div class="container">
+					  <ul class="nav nav-tabs">
+						<li><a class="active" data-toggle="tab" href="#atalhotab_{{ videoid }}">Atalho &nbsp;&nbsp;<i class="icon fa fa-map-o fa-fw " style="color:gray"></i></a></li>
+						<li><a data-toggle="tab" href="#codigotab_{{ videoid }}">Código HTML &nbsp;&nbsp;<i class="icon fa fa-code fa-fw " style="color:gray"></i></a></li>
+					  </ul>
+
+					  <div class="tab-content">
+						<div id="atalhotab_{{ videoid }}" class="tab-pane fade in active codeembed rounded" style="">
+						  <p id="atalho_{{ videoid }}">[vimeo video="{{ videoid }}"]</p>
+						  <button id="atalhobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">copiar <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
+						</div>
+						<div id="codigotab_{{ videoid }}" class="tab-pane fade codeembed rounded">
+						  <p id="codigo_{{ videoid }}">{{ htmlembed }}</p>
+						  <button id="codigobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">copiar <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
+						</div>
+					  </div>
+					</div>
 				</div>
+				<script>
+					document.getElementById('atalhobtn_{{ videoid }}').addEventListener('click', function(event) {
+					  copyTextToClipboard('[vimeo video="{{ videoid }}"]');
+					});
+					document.getElementById('codigobtn_{{ videoid }}').addEventListener('click', function(event) {
+					  copyTextToClipboard('{{{ htmlembed }}}');
+					});
+				</script>
+				<!-- Modal (play) -->
+				<div class="modal fade" id="play_{{ videoid }}" tabindex="-1" role="dialog">
+				  <div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5>{{ name }}</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_play_{{ videoid }}">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						{{{ htmlembed }}}
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<script>
+//					$("#play_{{ videoid }}").on("hidden.bs.modal", function (e) {
+//					alert(1);
+//						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
+//					});				
+				</script>
 				{{/ myvideos }}
 			</ul>
 		</div>	
@@ -162,7 +262,7 @@
 
             let files = (evt.originalEvent && evt.originalEvent.dataTransfer)?  evt.originalEvent.dataTransfer.files : $(this).get(0).files
             
-            MY_APP.sendFile( files );
+            MY_APP.sendFile( files, '{{ accesstoken }}' );
       }      
 
     });</script>

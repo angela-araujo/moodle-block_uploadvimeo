@@ -88,6 +88,6 @@ if ($ADMIN->fulltree) {
     
     // Settings - Restrictions.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingrestriction', new lang_string('config_headingrestriction', 'block_uploadvimeo'), ''));
-    $settings->add(new admin_setting_configselect('block_uploadvimeo/config_whitelist', new lang_string('config_whitelist', 'block_uploadvimeo'), '', 2, $embed));
+    $settings->add(new admin_setting_configtext('block_uploadvimeo/config_whitelist', new lang_string('config_whitelist', 'block_uploadvimeo'), null, '', PARAM_TEXT, 50));
     
 }

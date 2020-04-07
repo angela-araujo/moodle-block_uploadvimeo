@@ -86,35 +86,26 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $view = array('anybody', 'contacts', 'disable', 'nobody', 'password', 'unlisted', 'users');
         $embed = array('private', 'public', 'whitelist');
 
+        //$urivideo = '/videos/403693377';
+        
         if ($urivideo) {
             $videoid = str_replace('/videos/', '', $urivideo);
             
             // Edit video.
-            // PATCHhttps://api.vimeo.com/videos/{video_id}
+            // PATCH https://api.vimeo.com/videos/{video_id}
             $editvideo = $client->request('/videos/'.$videoid, array(
-                    'embed.buttons.embed'       => $yesno[$config->config_embedbuttonsembed],
-                    'embed.buttons.fullscreen'  => $yesno[$config->config_embedbuttonsfullscreen],
-                    'embed.buttons.like'        => $yesno[$config->config_embedbuttonslike],
-                    'embed.buttons.share'       => $yesno[$config->config_embedbuttonsshare],
-                    'embed.color'               => $config->config_embedcolor,
-                    'embed.logos.custom.active' => $yesno[$config->config_embedlogoscustomactive],
-                    'embed.logos.vimeo'         => $yesno[$config->config_embedlogosvimeo],
-                    'embed.title.name'          => $titlevisibility[$config->config_embedtitlename],
-                    'embed.title.portrait'      => $titlevisibility[$config->config_embedtitleportrait],
-                    'width'                     => $config->config_width,
-                    'height'                    => $config->config_height,
                     'privacy.add'               => $yesno[$config->config_privacyadd],
                     'privacy.comments'          => $whocomment[$config->config_privacycomments],
                     'privacy.download'          => $yesno[$config->config_privacydownload],
                     'privacy.embed'             => $embed[$config->config_privacyembed],
                     'privacy.view'              => $view[$config->config_privacyview],
-                    'whitelist'                 => $embed[$config->config_whitelist],
             ), 'PATCH');
             
             //print_r($editvideo); exit; 
-            // $editvideo['status'] == '200' // OK
-            
-            
+            if (!$editvideo['status'] == '200') { // OK
+                echo '<pre>'; print_r($editvideo); '</pre>';
+            }
+
             if ($folderid) {
                 // Add video to the folder.
                 $videoaddfolder = $client->request('/me/projects/' . $folderid . '/videos/' . $videoid, array(), 'PUT');
@@ -127,7 +118,6 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
                 if ($foldercreated['status'] == '201') { // 201 Created	- The folder was created.
                     
                     $urifolder = str_replace('/projects/', ',', str_replace('/users/', '', $foldercreated['body']['uri'])); ///users/42385845/projects/1621667
-                    
                     
                     list($useridvimeo, $folderid) = explode(',', $urifolder);
                     

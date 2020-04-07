@@ -40,7 +40,33 @@
         this.videoData = {
             name: (opts.name > '') ? opts.name : defaults.name,
             description: (opts.description > '') ? opts.description : defaults.description,
-        }
+			privacy: {
+				download: false,  
+				view: 'unlisted',
+				embed: 'whitelist',
+				add: false,
+				comments: 'nobody'
+			},
+			embed: {
+				buttons: {
+					embed: false,
+					fullscreen: true,
+					like: false,
+					share: false
+				},
+				color: '#ff0000',
+				logos: {
+					vimeo: false,
+					custom: {
+						active: false
+					}
+				},
+				title: {
+					name: 'hide',
+					portrait: 'hide'
+				}
+			}
+		}
         if( opts.extraOpts ) {
             this.videoData = Object.assign({}, this.videoData,  opts.extraOpts);    
         }    

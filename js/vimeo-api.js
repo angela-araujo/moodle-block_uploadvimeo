@@ -54,7 +54,7 @@
 					like: false,
 					share: false
 				},
-				color: '#ff0000',
+				color: '#ff9933',
 				logos: {
 					vimeo: false,
 					custom: {

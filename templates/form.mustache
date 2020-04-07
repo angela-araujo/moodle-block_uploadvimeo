@@ -195,10 +195,9 @@
 				  </div>
 				</div>
 				<script>
-//					$("#play_{{ videoid }}").on("hidden.bs.modal", function (e) {
-//					alert(1);
-//						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
-//					});				
+					$( document ).on("mouseleave", "#play_{{ videoid }}", function (e) {
+						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
+					});				
 				</script>
 				{{/ myvideos }}
 			</ul>

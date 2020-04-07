@@ -80,7 +80,7 @@ class block_uploadvimeo extends block_base {
                 'all' => false,
                 'site' => false,
                 'site-index' => false,
-                'course-view' => true,
+                'course' => true,
                 'my' => false
         );
     }

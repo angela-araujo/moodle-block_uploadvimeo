@@ -95,15 +95,15 @@
 
                 $("#success_alert").show();
                 //$("#success_alert > pre").text(metadata.embed.html);
-                //$("#success_alert > pre").text((metadata.uri)); //$("#success_alert > pre").text(Object.values(metadata.uri));
-                var urlredirect = location.href + '&urivideo=' + metadata.uri;
+
+                var urlform = new URL(location.href);
+                var courseid = urlform.searchParams.get("courseid");                
+                var urlredirect = location.origin + location.pathname + '?courseid=' + courseid + '&urivideo=' + metadata.uri;
                 setTimeout(function(){$(location).attr('href', urlredirect);}, 3000);
 
               }
             })).upload();         
           }
-          
-
 
     }
 

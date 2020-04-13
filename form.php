@@ -20,7 +20,6 @@
  * @copyright 2020 CCEAD PUC-Rio
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require ('../../config.php');
 
 $courseid = required_param('courseid', PARAM_INT);

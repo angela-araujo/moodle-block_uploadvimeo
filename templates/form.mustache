@@ -224,10 +224,10 @@
 					  <div class="modal-body">
 						<h5><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ <strong>APAGADO</strong>.<h5>
 						<h6>Após apagado, o vídeo não poderá ser recuperado no Vimeo (não há backup).</h6>
-						{{{ htmlembed }}}
+						<div>{{{ htmlembed }}}</div>
 						<div>
-							<input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" />Confirmo que o vídeo acima pode ser apagado do Vimeo.
-							<input type="submit" name="sendNewSms" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" Apagar " />
+							<input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" /> <h6>Confirmo que o vídeo acima pode ser apagado do Vimeo.</h6>
+							<input type="submit" name="sendNewSms" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" Apagar " disabled />
 						</div>
 					  </div>
 					</div>

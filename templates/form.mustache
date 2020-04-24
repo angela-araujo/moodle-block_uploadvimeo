@@ -222,9 +222,13 @@
 						</button>
 					  </div>
 					  <div class="modal-body">
-						<h3>ATENÇÃO: O VÍDEO ABAIXO SERÁ REMOVIDO DO REPOSITÓRIO</h3>
+						<h5><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ <strong>APAGADO</strong>.<h5>
+						<h6>Após apagado, o vídeo não poderá ser recuperado no Vimeo (não há backup).</h6>
 						{{{ htmlembed }}}
-						
+						<div>
+							<input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" />Confirmo que o vídeo acima pode ser apagado do Vimeo.
+							<input type="submit" name="sendNewSms" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" Apagar " />
+						</div>
 					  </div>
 					</div>
 				  </div>

@@ -149,6 +149,9 @@
 					<a data-toggle="modal" data-target="#play_{{ videoid }}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
 					</a>
+					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
+					</a>
 				</li>
 				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
@@ -199,6 +202,12 @@
 						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
 					});				
 				</script>
+				<!-- Collapse (thumb) -->
+				<div class="collapse" id="thumb_videoid_{{ videoid }}">
+					<div class="container">
+					</div>
+				</div>
+
 				{{/ myvideos }}
 			</ul>
 		</div>	

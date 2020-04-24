@@ -152,6 +152,9 @@
 					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
 					</a>
+					<a data-toggle="modal" data-target="#delete_{{ videoid }}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
+					</a>
 				</li>
 				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
@@ -205,9 +208,32 @@
 				<!-- Collapse (thumb) -->
 				<div class="collapse" id="thumb_videoid_{{ videoid }}">
 					<div class="container">
-						<div style="height:100px;"><p>Incluir aqui o código de upload da imagem (thumbnail)</p></div>
+						<div style="height:100px;"><p>Incluir aqui o código de upload da imagem (thumbnail) do vídeo: {{ videoid }}</p></div>
 					</div>
 				</div>
+				<!-- Modal (delete) -->
+				<div class="modal fade" id="delete_{{ videoid }}" tabindex="-1" role="dialog">
+				  <div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5>Apagar vídeo</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_delete_{{ videoid }}">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						<h3>ATENÇÃO: O VÍDEO ABAIXO SERÁ REMOVIDO DO REPOSITÓRIO</h3>
+						{{{ htmlembed }}}
+						
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<script>
+					$( document ).on("mouseleave", "#play_{{ videoid }}", function (e) {
+						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
+					});				
+				</script>
 
 				{{/ myvideos }}
 			</ul>

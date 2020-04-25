@@ -86,10 +86,11 @@
 
 .block-uploadvimeo iframe {
     position: absolute;
-    width: 90%;
+    width: auto;
     height: 90%;
+    max-height:300px;
     border: 0;
-	left:25px;
+	  left:25px;
 }
 
   /* Space out content a bit */

@@ -223,7 +223,7 @@
 					  </div>
 					  <div class="modal-body">
 						<h6 STYLE="text-align:center;"><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ DEFINITIVAMENTE APAGADO<h6>
-						<div>{{{ htmlembed }}}</div>
+						<div id="ifr_{{ videoid }}">{{{ htmlembed }}}</div>
 						<div><br><br></div>
 						<div>
 							<br /><h6>Após apagado, o vídeo não poderá ser recuperado (não há backup).</h6>
@@ -238,7 +238,13 @@
 					$( document ).on("mouseleave", "#play_{{ videoid }}", function (e) {
 						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
 					});
-					$('#delete_{{ videoid }}').modal('handleUpdate');			
+					window.onload=function(){
+						var ifr=document.getElementById('ifr_{{ videoid }}').innerHTML;
+						ifr.onload=function(){
+							$('#delete_{{ videoid }}').modal('handleUpdate');			
+							console.log('laod the iframe')
+						};
+					};
 				</script>
 
 				{{/ myvideos }}

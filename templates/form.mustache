@@ -238,12 +238,10 @@
 					$( document ).on("mouseleave", "#play_{{ videoid }}", function (e) {
 						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
 					});
-					window.onload=function(){
-						var ifr=document.getElementById('ifr_{{ videoid }}').innerHTML;
-						ifr.onload=function(){
-							$('#delete_{{ videoid }}').modal('handleUpdate');			
-							console.log('laod the iframe')
-						};
+					var ifr=document.getElementById('ifr_{{ videoid }}').innerHTML;
+					ifr.onload=function(){
+						$('#delete_{{ videoid }}').modal('handleUpdate');			
+						console.log('laod the iframe')
 					};
 				</script>
 

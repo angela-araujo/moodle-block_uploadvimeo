@@ -149,6 +149,12 @@
 					<a data-toggle="modal" data-target="#play_{{ videoid }}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
 					</a>
+					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
+					</a>
+					<a data-toggle="modal" data-target="#delete_{{ videoid }}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
+					</a>
 				</li>
 				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
@@ -199,6 +205,41 @@
 						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
 					});				
 				</script>
+				<!-- Collapse (thumb) -->
+				<div class="collapse" id="thumb_videoid_{{ videoid }}">
+					<div class="container">
+						<div style="height:100px;"><p>Incluir aqui o código de upload da imagem (thumbnail) do vídeo: {{ videoid }}</p></div>
+					</div>
+				</div>
+				<!-- Modal (delete) -->
+				<div class="modal fade" id="delete_{{ videoid }}" tabindex="-1" role="dialog">
+				  <div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content" style="height:600px;">
+					  <div class="modal-header">
+						<h5>Apagar vídeo do Vimeo</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_delete_{{ videoid }}">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						<h6 style="text-align:center;color:#a00000"><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ DEFINITIVAMENTE APAGADO<h6>
+						<br />
+						<div>{{{ htmlembed }}}</div>
+						<div style="padding-top:310px;">
+							<br /><h6>Após apagado, o vídeo não poderá ser recuperado (não há backup).</h6>
+							<br /><h6><input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" /> Confirmo que o vídeo acima pode ser apagado do Vimeo.</h6>
+							<br /><input type="submit" name="sendNewSms" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" Apagar " disabled />
+						</div>
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<script>
+					$( document ).on("mouseleave", "#delete_{{ videoid }}", function (e) {
+						$("#delete_{{ videoid }} iframe").attr("src", $("#delete_{{ videoid }} iframe").attr("src"));
+					});
+				</script>
+
 				{{/ myvideos }}
 			</ul>
 		</div>	

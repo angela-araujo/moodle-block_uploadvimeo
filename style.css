@@ -84,12 +84,8 @@
 	height: 400px;
 }
 
-.block-uploadvimeo iframe {
-    position: absolute;
-    width: 90%;
-    height: 90%;
-    border: 0;
-	left:25px;
+.block-uploadvimeo i.icon.fa.fa-pencil.fa-fw {
+	color: gray;
 }
 
   /* Space out content a bit */

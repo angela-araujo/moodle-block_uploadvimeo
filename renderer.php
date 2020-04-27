@@ -211,7 +211,7 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
     }
     
     private function get_videos_from_folder($config, $client, $folderid) {
-        
+
         $videos = $client->request('/me/projects/'.$folderid.'/videos');
         
         if ($videos['body']['total'] <> '0') { // OK
@@ -223,10 +223,16 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
                 $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title=""></iframe>';
                 
                 $myvideos[] = array('name' => $video['name'],
-                        'linkvideo' => $video['link'],
-                        'videoid' => $videoid, //[uri] => /videos/401242079
-                        'htmlembed' => $htmlembed, //'' . $videovalue['embed']['html'] . '',
-                        'thumbnail' => $video['pictures']['sizes'][0]['link'],
+                    'linkvideo' => $video['link'],
+                    'videoid'   => $videoid, //[uri] => /videos/401242079
+                    'htmlembed' => $htmlembed, //'' . $videovalue['embed']['html'] . '',
+                    'thumbnail' => $video['pictures']['sizes'][0]['link'],
+                    'type'      => 'text',
+                    'component' => 'block_uploadvimeo',
+                    'itemtype'  => 'title',
+                    'itemid'    => $videoid,
+                    'value'     => $video['name'],
+                    'editlabel' => $video['name']
                 );
                 
             }
@@ -351,6 +357,26 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
     }
     
 
+    private function edit_title(Vimeo $client, $videoid, $newtitle){
+
+        $array = array('name' => $newtitle );
+        
+        // Edit video.
+        // PATCH https://api.vimeo.com/videos/{video_id}
+        $editvideo = $client->request('/videos/'.$videoid, $array, 'PATCH');
+        
+        if (!$editvideo['status'] == '200') { // OK
+            echo '<h5>update_video</h5><pre>'; print_r($editvideo); '</pre>';
+            return false;
+        }
+        else
+            return true;
+    }
+    
+    private function edit_thumbnail(){
+        
+        return false;
+    }
     
     
 }

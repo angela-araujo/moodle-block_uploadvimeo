@@ -132,40 +132,37 @@
 				<li>
 					<a class="btn btn-link" data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}">
 						<img src="{{ thumbnail }}" class="rounded">				
-						<span style="margin-left:10px;">{{ name }}</span>
-					</a>
-					<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
-					</a>
-					<a data-toggle="modal" data-target="#play_{{ videoid }}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
-					</a>
-					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
-					</a>
-					<a data-toggle="modal" data-target="#delete_{{ videoid }}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
+						<!-- <span style="margin-left:10px;">{{ name }}</span> -->
 					</a>
 					
+					<!-- inplace editable -->
+				    <span class="inplaceeditable inplaceeditable-{{type}}" data-inplaceeditable="1" data-component="{{component}}" data-itemtype="{{itemtype}}" data-itemid="{{itemid}}" data-value="{{value}}" data-editlabel="{{editlabel}}" data-type="{{type}}" data-options="{{options}}">
+				        <a href="#" class="quickeditlink" data-inplaceeditablelink="1" title="{{#str}} edittitlevideo, block_uploadvimeo {{/str}}">
+				            {{name}}
+				            <span class="quickediticon visibleifjs">{{#pix}}t/editstring,core,{{{edithint}}}{{/pix}}</span>
+				        </a>
+					</span>
+				    {{#js}}
+				        require(['core/inplace_editable']);
+				    {{/js}}
+
+					<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}" title="{{#str}} showcodeembed, block_uploadvimeo {{/str}}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
+					</a>
+					<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
+					</a>
+					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}" title="{{#str}} editthumbnailvideo, block_uploadvimeo {{/str}}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
+					</a>
+					<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
+					</a>
+					<!-- 
 					<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
 						<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
 					</a>
-					<a data-toggle="modal" data-target="#title_{{ videoid }}" title="Alterar título do vídeo">
-						<span style="margin-right:-5px;"><i class="icon fa fa-pencil fa-fw " style="color:gray"></i></span>
-					</a>
-					{{#component}}
-    <span class="inplaceeditable inplaceeditable-{{type}}" data-inplaceeditable="1" data-component="{{component}}" data-itemtype="{{itemtype}}" data-itemid="{{itemid}}" data-value="{{value}}" data-editlabel="{{editlabel}}" data-type="{{type}}" data-options="{{options}}">
-        {{#iconurl}}<img src="{{iconurl}}" class="iconlarge activityicon" alt="{{{modtitle}}}" role="presentation">{{/iconurl}}
-        {{^linkeverything}}{{{displayvalue}}}{{/linkeverything}}
-        <a href="#" class="quickeditlink" data-inplaceeditablelink="1" title="{{edithint}}">
-            {{#linkeverything}}{{{displayvalue}}}{{/linkeverything}}
-            <span class="quickediticon visibleifjs">{{#pix}}t/editstring,core,{{{edithint}}}{{/pix}}</span>
-        </a>
-</span>
-    {{#js}}
-        require(['core/inplace_editable']);
-    {{/js}}
-{{/component}}
+					 -->
 					
 					
 				</li>

@@ -181,10 +181,11 @@
 					<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
 					</a>
+					<!-- 
 					<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
 						<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
 					</a>
-					
+					 -->
 					
 				</li>
 				
@@ -295,7 +296,7 @@
 										<input type="checkbox" onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" />
 										Confirmo que o vídeo acima pode ser apagado do Vimeo.
 									</h6>
-									<br />
+									<br /><br />
 									<input type="submit" name="btn_delete_{{ videoid }}" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" {{#str}} btndelete, block_uploadvimeo {{/str}} " disabled />
 								</form>
 								</div>

@@ -13,15 +13,14 @@ $deletevideoid = optional_param('deletevideoid', NULL, PARAM_INT);
 $userid = $USER->id;
 
 if ($urivideo) {
-    
-    global $CFG;
+
     uploadvimeo::video_upload($courseid, $userid, $urivideo);
-    redirect("$CFG->wwwroot/blocks/uploadvimeo/form.php?courseid=$courseid");
+    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
     
 } else if ($deletevideoid) {
     
     uploadvimeo::video_delete($courseid, $deletevideoid);  
-    redirect("$CFG->wwwroot/blocks/uploadvimeo/form.php?courseid=$courseid");
+    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
     
 }
 

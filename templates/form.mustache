@@ -129,16 +129,17 @@
 			<h5>{{{ textmyvideos }}}</h5>	
 			<ul>
 				{{# myvideos }}
-				<li>
+				<li><!-- 
 					<a class="btn btn-link" data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}">
 						<img src="{{ thumbnail }}" class="rounded">				
-						<!-- <span style="margin-left:10px;">{{ name }}</span> -->
+						<span style="margin-left:10px;">{{ name }}</span>
 					</a>
-					
+					 -->
 					<!-- inplace editable -->
+					<img src="{{ thumbnail }}" class="rounded">	<span style="margin-left:10px;"></span>
 				    <span class="inplaceeditable inplaceeditable-{{type}}" data-inplaceeditable="1" data-component="{{component}}" data-itemtype="{{itemtype}}" data-itemid="{{itemid}}" data-value="{{value}}" data-editlabel="{{editlabel}}" data-type="{{type}}" data-options="{{options}}">
 				        <a href="#" class="quickeditlink" data-inplaceeditablelink="1" title="{{#str}} edittitlevideo, block_uploadvimeo {{/str}}">
-				            {{name}}
+				            {{ name }}
 				            <span class="quickediticon visibleifjs">{{#pix}}t/editstring,core,{{{edithint}}}{{/pix}}</span>
 				        </a>
 					</span>
@@ -152,17 +153,17 @@
 					<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
 					</a>
+					<!-- 
 					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}" title="{{#str}} editthumbnailvideo, block_uploadvimeo {{/str}}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
 					</a>
+					 -->
 					<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
 					</a>
-					<!-- 
 					<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
 						<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
 					</a>
-					 -->
 					
 					
 				</li>
@@ -203,6 +204,7 @@
 										Para enviar uma nova imagem para o vídeo, arraste-o para dentro desta área
 										demarcada, ou clique no botão <strong>Enviar imagem</strong>.
 									</p>
+									<p>Arquivos aceitos: JPEG, PNG, or GIF</p>
 									<br>
 									<br>
 									<div>
@@ -254,19 +256,21 @@
 				  <div class="modal-dialog modal-dialog-centered" role="document">
 					<div class="modal-content" style="height:600px;">
 					  <div class="modal-header">
-						<h5>Apagar vídeo do Vimeo</h5>
+						<h5>Apagar vídeo  do Vimeo: <b>"{{ name }}"</b></h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_delete_{{ videoid }}">
 						  <span aria-hidden="true">&times;</span>
 						</button>
 					  </div>
 					  <div class="modal-body">
-						<h6 style="text-align:center;color:#a00000"><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ DEFINITIVAMENTE APAGADO<h6>
+						<h6 style="text-align:center;color:#a00000"><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ DEFINITIVAMENTE APAGADO</h6>
 						<br />
-						<div>{{{ htmlembed }}}</div>
-						<div style="padding-top:310px;">
+						<div style="margin-top:-123px;">{{{ htmlembed }}}</div>
+						<div style="padding-top:400px;">						
 							<br /><h6>Após apagado, o vídeo não poderá ser recuperado (não há backup).</h6>
-							<br /><h6><input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" /> Confirmo que o vídeo acima pode ser apagado do Vimeo.</h6>
-							<br /><input type="submit" name="sendNewSms" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" Apagar " disabled />
+							<form action="{{{urldeletevideo}}}={{videoid}}" method="post">
+								<br /><h6><input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" /> Confirmo que o vídeo acima pode ser apagado do Vimeo.</h6>
+								<br /><input type="submit" name="btn_delete_{{ videoid }}" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" {{#str}} btndelete, block_uploadvimeo {{/str}} " disabled />
+							</form>
 						</div>
 					  </div>
 					</div>
@@ -285,7 +289,8 @@
 
 </div>
 
-    <script> $( document ).ready(function() {
+<script>
+$( document ).ready(function() {
       //http://hayageek.com/drag-and-drop-file-upload-jquery/
       var obj = $(".draggable");
       obj.on('dragenter', function (e) 
@@ -307,6 +312,7 @@
       
       obj.on('drop', handleFileSelect);     
       $('input[type="file"]').change(handleFileSelect); 
+      
       //prevent open file
       $(document).on('dragenter', function (e) 
       {
@@ -334,4 +340,5 @@
             
             MY_APP.sendFile( files, '{{ accesstoken }}' );
       }      
-    });</script>
+    });
+</script>

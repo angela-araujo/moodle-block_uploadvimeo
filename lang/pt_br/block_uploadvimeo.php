@@ -111,6 +111,7 @@ $string['editthumbnailvideo'] = 'Editar imagem do vídeo';
 $string['deletevideo'] = 'Excluir vídeo definitivamente';
 $string['playvideo'] = 'Tocar vídeo';
 $string['showcodeembed'] = 'Mostrar código para embutir vídeo';
+$string['btndelete'] = 'Apagar vídeo';
 
 // Capability strings.
 $string['uploadvimeo:myaddinstance'] = 'Adicionar bloco Envio de Vídeos - Vimeo';
@@ -122,3 +123,8 @@ $string['text_upload_sucess'] = '<b>ATENÇÃO</b>: o vídeo precisa ser processa
 
 // Shortcodes.
 $string['shortcode:vimevideo'] = 'Shortcode para embedar vídeo vimeo';
+
+// Log.
+$string['event_video_uploaded'] = 'Video uploaded';
+$string['event_video_edit_title'] = 'Título do vídeo editado';
+$string['event_video_deleted'] = 'Vídeo excluído';

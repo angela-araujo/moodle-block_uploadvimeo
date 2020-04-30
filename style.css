@@ -88,6 +88,11 @@
 	color: gray;
 }
 
+.block-uploadvimeo .inplaceeditable .inplaceeditingon .editinstructions {
+    margin-top: -10px;
+    height: 10px;
+}
+
   /* Space out content a bit */
   body {
     padding-top: 20px;

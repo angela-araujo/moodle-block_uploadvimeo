@@ -99,7 +99,7 @@
                 var urlform = new URL(location.href);
                 var courseid = urlform.searchParams.get("courseid");                
                 //var urlredirect = location.origin + location.pathname + '?courseid=' + courseid + '&urivideo=' + metadata.uri;
-                var urlredirect = location.origin + '/moodle-38/blocks/uploadvimeo/update.php?courseid=' + courseid + '&urivideo=' + metadata.uri;
+                var urlredirect = location.origin + '/moodle02/blocks/uploadvimeo/update.php?courseid=' + courseid + '&urivideo=' + metadata.uri;
                 setTimeout(function(){$(location).attr('href', urlredirect);}, 3000);
 
               }

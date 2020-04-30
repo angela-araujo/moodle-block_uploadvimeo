@@ -19,15 +19,35 @@
 
     This template renders the form content area for the upload vimeo block.
 
+	Context variables required for this template:
+	    * heading - element name
+	    * url - url form
+	    * myvideos - list of videos
+	    * textmyvideos - text for the list videos
+	    * accesstoken - access token api vimeo
+	    * urldeletevideo - url to delete video
+    
     Example context (json):
     {
-        "attributes": [                                                                                                             
-            { "name": "heading", "value": "Meus vídeos" },
-            { "name": "url", "value": "" },
-            { "name": "returnlink", "value": "" },
-            { "name": "returntext", "value": "Click here to back course" },
-            { "name": "", "value": "" },
-        ]
+        "heading": "My videos",
+        "url": "/blocks/uploadvimeo/form.php",
+        "myvideos": [			
+			{
+				"name": "Video 01", "linkvideo": "https://link01", "videoid": "44444", 
+				"htmlembed": "<iframe></iframe>", "thumbnail": "https://link",
+				"type": "text", "component": "block_uploadvimeo", "itemtype": "title", 
+				"itemid": "44444", "value": "Video 01", "editlabel": "Video 01"
+			},
+			{
+				"name": "Video 02", "linkvideo": "https://link02", "videoid": "55555", 
+				"htmlembed": "<iframe></iframe>", "thumbnail": "https://link",
+				"type": "text", "component": "block_uploadvimeo", "itemtype": "title", 
+				"itemid": "55555", "value": "Video 02", "editlabel": "Video 02"
+			},
+		],
+        "textmyvideos": "Text",
+        "accesstoken": "0000000x00x0x0x",
+        "urldeletevideo": "/blocks/uploadvimeo/update.php",
     }
 }}
     <link rel="stylesheet" href="style.css">
@@ -167,6 +187,7 @@
 					
 					
 				</li>
+				
 				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
 					<div class="container">
@@ -252,29 +273,35 @@
 					</div>
 				</div>
 				<!-- Modal (delete) -->
-				<div class="modal fade" id="delete_{{ videoid }}" tabindex="-1" role="dialog">
-				  <div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content" style="height:600px;">
-					  <div class="modal-header">
-						<h5>Apagar vídeo  do Vimeo: <b>"{{ name }}"</b></h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_delete_{{ videoid }}">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					  </div>
-					  <div class="modal-body">
-						<h6 style="text-align:center;color:#a00000"><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ DEFINITIVAMENTE APAGADO</h6>
-						<br />
-						<div style="margin-top:-123px;">{{{ htmlembed }}}</div>
-						<div style="padding-top:400px;">						
-							<br /><h6>Após apagado, o vídeo não poderá ser recuperado (não há backup).</h6>
-							<form action="{{{urldeletevideo}}}={{videoid}}" method="post">
-								<br /><h6><input type="checkbox"  onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" /> Confirmo que o vídeo acima pode ser apagado do Vimeo.</h6>
-								<br /><input type="submit" name="btn_delete_{{ videoid }}" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" {{#str}} btndelete, block_uploadvimeo {{/str}} " disabled />
-							</form>
+				<div class="modal fade" id="delete_{{ videoid }}" tabindex="-1"	role="dialog">
+					<div class="modal-dialog modal-dialog-centered" role="document">
+						<div class="modal-content" style="height:600px;">
+							<div class="modal-header">
+								<h5>Apagar vídeo do Vimeo: <b>"{{ name }}"</b></h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_delete_{{ videoid }}">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<h6 style="text-align: center; color: #a00000"><strong>ATENÇÃO:</strong> O VÍDEO ABAIXO SERÁ DEFINITIVAMENTE APAGADO</h6>
+								<br />
+								<div> {{{ htmlembed }}} </div>
+								
+								<div style="padding-top:310px;">
+								<form action="{{{ urldeletevideo }}}={{ videoid }}" method="post">
+									<br />
+									<h6>
+										<h6>Após apagado, o vídeo não poderá ser recuperado (não há	backup).</h6>
+										<input type="checkbox" onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" />
+										Confirmo que o vídeo acima pode ser apagado do Vimeo.
+									</h6>
+									<br />
+									<input type="submit" name="btn_delete_{{ videoid }}" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" {{#str}} btndelete, block_uploadvimeo {{/str}} " disabled />
+								</form>
+								</div>
+							</div>
 						</div>
-					  </div>
 					</div>
-				  </div>
 				</div>
 				<script>
 					$( document ).on("mouseleave", "#delete_{{ videoid }}", function (e) {

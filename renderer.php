@@ -83,7 +83,6 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $data = new stdClass();        
         $data->heading = get_string('pluginname', 'block_uploadvimeo');
         $data->url = new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid, 'userid' => $userid]);
-        $data->class = 'block_uploadviemto_links';        
         $data->myvideos = $videos;
 		$data->textmyvideos = $textmyvideos;	
 		$data->accesstoken = $config->config_accesstoken;

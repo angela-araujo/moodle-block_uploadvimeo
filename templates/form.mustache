@@ -150,35 +150,32 @@
 			<ul>
 				{{# myvideos }}
 				<li>
-					<img src="{{ thumbnail }}" class="rounded" name="thumbnail_{{ videoid }}" id="thumbnail_{{ videoid }}" >
-					<span style="margin-left:10px;"></span>
-					<span style="margin-left:10px;margin-right:20px;">{{ name }}</span>
-
-					<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}" title="{{#str}} showcodeembed, block_uploadvimeo {{/str}}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
-					</a>
-					
-					<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
-					</a>
-					
-					<!-- inplace editable -->
-					<span class="inplaceeditable inplaceeditable-{{type}}" data-inplaceeditable="1" data-component="{{component}}" data-itemtype="{{itemtype}}" data-itemid="{{itemid}}" data-value="{{value}}" data-editlabel="{{editlabel}}" data-type="{{type}}" data-options="{{options}}">
-						<a href="#" class="quickeditlink" data-inplaceeditablelink="1" title="{{#str}} edittitlevideo, block_uploadvimeo {{/str}}">
-							<span style="margin-right:-5px;" class="quickediticon visibleifjs">{{#pix}}t/editstring,core,{{{edithint}}}{{/pix}}</span>
-						</a>
+					<span class="videoinplace">
+						<!-- inplace editable -->
+						{{{ titleinplace }}}
 					</span>
-					{{#js}}
-						require(['core/inplace_editable']);
-					{{/js}}
-					<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
-						<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
-					</a>
-					<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
-					</a>
+					<span class="menuvideo">
+						<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}" title="{{#str}} showcodeembed, block_uploadvimeo {{/str}}">
+							<!-- <img src="{{ thumbnail }}" class="rounded" name="thumbnail_{{ videoid }}" id="thumbnail_{{ videoid }}" >
+							<span style="margin-left:10px; margin-right:20px;">{{ name }}</span> -->
+							<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
+						</a>
+						
+						<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
+							<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
+						</a>
+						
+						<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
+							<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
+						</a>
+						<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
+							<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
+						</a>					
+					</span>
 					
 					
+					
+				
 				</li>
 				
 				<!-- Collapse (code) -->
@@ -223,7 +220,7 @@
 							<div class="modal-body">
 								<div class="draggable" id="register_image" >
 									<form action="{{{ urleditthumbnail }}}={{ videoid }}" method="post" enctype="multipart/form-data" id="formnewthumbnail_{{ videoid }}">
-										<p class="lead">Arraste a imagem para dentro desta área	demarcada, ou clique no botão <strong>Selecionar imagem</strong>.</p>
+										<p class="lead"><!-- Arraste a imagem para dentro desta área	demarcada, ou  -->Clique no botão <strong>Selecionar imagem</strong>.</p>
 										<p>Arquivos aceitos: JPEG, PNG, or GIF</p>
 										<img id="previewimg_{{ videoid }}" style="height: 55px;" class="" />
 										<br><br>										
@@ -312,7 +309,7 @@
 								<div> {{{ htmlembed }}} </div>
 								
 								<div style="padding-top:310px;">
-								<form action="{{{ urldeletevideo }}}={{ videoid }}" method="post" id="formnewthumbnail_{{ videoid }}">
+								<form action="{{{ urldeletevideo }}}={{ videoid }}" method="post" id="formdelete_{{ videoid }}">
 									<br />
 									<h6>
 										<h6>Após apagado, o vídeo não poderá ser recuperado (não há	backup).</h6>
@@ -341,6 +338,7 @@
 </div>
 
 <script>
+
 $( document ).ready(function() {
 	
       //http://hayageek.com/drag-and-drop-file-upload-jquery/

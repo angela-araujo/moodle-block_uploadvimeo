@@ -97,9 +97,32 @@
   color: gray;
 }
 
-.block-uploadvimeo .inplaceeditable .inplaceeditingon .editinstructions {
-    margin-top: -10px;
-    height: 10px;
+.block-uploadvimeo .inplaceeditable .editinstructions {
+  /*  display: none;*/
+    margin-top: -46px;
+    height: 25px;
+    padding: 0;
+    background-color: white;
+	border: none;
+    
+}
+
+.block-uploadvimeo .inplaceeditable input {
+    
+    /*margin-top: 0;
+    width: 350px;*/
+     
+}
+
+.block-uploadvimeo .videoinplace {
+	/*background-color: antiquewhite;*/
+    width: 500px;
+    display: inline-block;	
+}
+
+.block-uploadvimeo .menuvideo {
+	/*background-color: bisque;*/
+    position: relative;
 }
 
   /* Space out content a bit */

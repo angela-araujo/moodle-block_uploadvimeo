@@ -31,8 +31,7 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
         
         // Must call validate_context for either system, or course or course module context.
         // This will both check access and set current context.
-        \external_api::validate_context(context_system::instance());
-        
+        \external_api::validate_context(context_system::instance());        
         
         // Check permission of the user to update this item.
         //require_capability('block/uploadvimeo:seepagevideos', context_system::instance());
@@ -42,13 +41,18 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
         // Clean input and update the record.
         $newvalue = clean_param($newvalue, PARAM_NOTAGS);
 
-        $editvideo = uploadvimeo::edit_title($itemid, $newvalue);
+        $response = uploadvimeo::edit_title($itemid, $newvalue);
         
-        if ($editvideo) {            
+        if ($response) {            
+            
+            $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$itemid.'" data-target="#videoid_'.$itemid.'">';
+            $displayvalue .= '<img src="'.$response.'" class="rounded" name="thumbnail_'.$itemid.'" id="thumbnail_'.$itemid.'">';
+            $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$newvalue.'</span></a>';
+            
             // Prepare the element for the output:
             return new \core\output\inplace_editable('block_uploadvimeo', 'title', $itemid, true,
-                    format_string($newvalue), $newvalue, 
-                    get_string('edittitlevideo', 'block_uploadvimeo'),  'Novo título para o vídeo ' . format_string($newvalue));
+                    $displayvalue, $newvalue, 
+                    get_string('edittitlevideo', 'block_uploadvimeo'));
         }
     }
 }

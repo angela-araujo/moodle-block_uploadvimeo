@@ -164,7 +164,7 @@ class uploadvimeo {
     }
     
     static public function get_videos_from_folder($folderid) {
-        
+        global $OUTPUT;
         $config = get_config('block_uploadvimeo');
         $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
         
@@ -174,21 +174,26 @@ class uploadvimeo {
             
             foreach ($videos['body']['data'] as $video) {
                 
-                $videoid = str_replace('/videos/', '', $video['uri']);
+                $videoid = str_replace('/videos/', '', $video['uri']); //[uri] => /videos/401242079
                 $uri = 'https://player.vimeo.com/video/'.$videoid.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
                 $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title=""></iframe>';
                 
+                $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$videoid.'" data-target="#videoid_'.$videoid.'">';
+                $displayvalue .= '<img src="'.$video['pictures']['sizes'][0]['link'].'" class="rounded" name="thumbnail_'.$videoid.'" id="thumbnail_'.$videoid.'">';
+                $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$video['name'].'</span></a>';
+                
+                $titleinplace = new \core\output\inplace_editable('block_uploadvimeo', 'title', $videoid, true,
+                        $displayvalue, $video['name'],
+                        get_string('edittitlevideo', 'block_uploadvimeo'),  
+                        'Novo título para o vídeo ' . format_string($video['name']));
+                
+                
                 $myvideos[] = array('name' => $video['name'],
                         'linkvideo' => $video['link'],
-                        'videoid'   => $videoid, //[uri] => /videos/401242079
+                        'videoid'   => $videoid, 
                         'htmlembed' => $htmlembed, //'' . $videovalue['embed']['html'] . '',
                         'thumbnail' => $video['pictures']['sizes'][0]['link'],
-                        'type'      => 'text',
-                        'component' => 'block_uploadvimeo',
-                        'itemtype'  => 'title',
-                        'itemid'    => $videoid,
-                        'value'     => $video['name'],
-                        'editlabel' => $video['name']
+                        'titleinplace' => $OUTPUT->render($titleinplace)
                 );
                 
             }
@@ -345,13 +350,15 @@ class uploadvimeo {
             return false;
         }
         
+        $video = $client->request('/videos/' . $videoid, array(), 'GET');        
+        
         // Log.
         $event = \block_uploadvimeo\event\video_edit_title::create( array(
                         'context' => context_course::instance($COURSE->id),
                         'other' => array('videoid' => $videoid) ));
         $event->trigger();
         
-        return true;
+        return $video['body']['pictures']['sizes'][0]['link'];
     }
     
     static public function edit_thumbnail($videoid, $newimage){

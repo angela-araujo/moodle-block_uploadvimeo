@@ -340,7 +340,7 @@ class uploadvimeo {
         // PATCH https://api.vimeo.com/videos/{video_id}
         $editvideo = $client->request('/videos/'.$videoid, $array, 'PATCH');
         
-        if (!$editvideo['status'] == '200') { // OK
+        if (!$editvideo['status'] == 200) { // OK
             echo '<h5>update_video</h5><pre>'; print_r($editvideo); '</pre>';
             return false;
         }
@@ -354,9 +354,38 @@ class uploadvimeo {
         return true;
     }
     
-    static private function edit_thumbnail(){
+    static public function edit_thumbnail($videoid, $newimage){
         
-        return false;
+        //@see: https://developer.vimeo.com/api/upload/thumbnails
+        
+        $config = get_config('block_uploadvimeo');
+        $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
+        
+        // Step 1: Get picture uri.
+        $video = $client->request('/videos/' . $videoid, array(), 'GET');
+        if (!$video['status'] == 200){
+            return false;
+        }
+        $picture_uri = $video['body']['metadata']['connections']['pictures']['uri'];
+        
+        // Step 2: Get the upload link for the thumbnail. create the thumbnail's resource
+        $newlink = $client->request($picture_uri, array(), 'POST');
+        if (!$newlink['status'] == 200) {
+            return false;
+        }
+        
+         // Step 3: Upload the thumbnail image file. 
+        $response = $client->uploadImage($picture_uri, $newimage, true);
+        
+        if ($response) {
+            $video = $client->request('/videos/' . $videoid, array(), 'GET');
+            if ($video['status'] == 200){
+                return $video['body']['pictures']['sizes'][0]['link'];
+            }
+        }
+        
+        return false;            
+        
     }
     
     

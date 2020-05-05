@@ -112,16 +112,16 @@
 				<br><br>
 				<div>
 					<label class="btn btn-primary">
-					  Enviar Vídeo <input id="browse" type="file" style="display: none;">
+					Enviar Vídeo <input id="browse" type="file" style="display: none;">
 					</label>
 				</div>
 			</div>
 			<br>
 			<div class="alert alert-warning alert-dismissible fade show" role="alert" style="max-width:80%;">
-			  <strong>Atenção:</strong> Ao enviar vídeos, você deve respeitar as regras do Vimeo, carregando apenas vídeos feitos por você que não tenham conteúdo impróprio. Para maiores informações, <a href="https://vimeo.com/help/guidelines#video" target="_blank">clique aqui</a>.
-			  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<strong>Atenção:</strong> Ao enviar vídeos, você deve respeitar as regras do Vimeo, carregando apenas vídeos feitos por você que não tenham conteúdo impróprio. Para maiores informações, <a href="https://vimeo.com/help/guidelines#video" target="_blank">clique aqui</a>.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
-			  </button>
+				</button>
 			</div>
 			<br>
 			<div id="success_alert" class="alert alert-success" role="alert" style="display: none;">
@@ -131,10 +131,10 @@
 					<br>
 					<h4>{{#str}} text_upload_sucess, block_uploadvimeo {{/str}}</h4>
 				</div>
-				<pre>          
+				<pre>
 				</pre>
 			</div>
-  		
+		
 		
 		</div>
 	</div>
@@ -149,130 +149,153 @@
 			<h5>{{{ textmyvideos }}}</h5>	
 			<ul>
 				{{# myvideos }}
-				<li><!-- 
-					<a class="btn btn-link" data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}">
-						<img src="{{ thumbnail }}" class="rounded">				
-						<span style="margin-left:10px;">{{ name }}</span>
-					</a>
-					 -->
-					<!-- inplace editable -->
-					<img src="{{ thumbnail }}" class="rounded">	<span style="margin-left:10px;"></span>
-				    <span class="inplaceeditable inplaceeditable-{{type}}" data-inplaceeditable="1" data-component="{{component}}" data-itemtype="{{itemtype}}" data-itemid="{{itemid}}" data-value="{{value}}" data-editlabel="{{editlabel}}" data-type="{{type}}" data-options="{{options}}">
-				        <a href="#" class="quickeditlink" data-inplaceeditablelink="1" title="{{#str}} edittitlevideo, block_uploadvimeo {{/str}}">
-				            {{ name }}
-				            <span class="quickediticon visibleifjs">{{#pix}}t/editstring,core,{{{edithint}}}{{/pix}}</span>
-				        </a>
-					</span>
-				    {{#js}}
-				        require(['core/inplace_editable']);
-				    {{/js}}
+				<li>
+					<img src="{{ thumbnail }}" class="rounded" name="thumbnail_{{ videoid }}" id="thumbnail_{{ videoid }}" >
+					<span style="margin-left:10px;"></span>
+					<span style="margin-left:10px;margin-right:20px;">{{ name }}</span>
 
 					<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}" title="{{#str}} showcodeembed, block_uploadvimeo {{/str}}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
 					</a>
+					
 					<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
 						<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
 					</a>
-					<!-- 
-					<a data-toggle="collapse" aria-expanded="false" aria-controls="thumb_videoid_{{ videoid }}" data-target="#thumb_videoid_{{ videoid }}" title="{{#str}} editthumbnailvideo, block_uploadvimeo {{/str}}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-image fa-fw " style="color:gray"></i></span>
-					</a>
-					 -->
-					<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
-						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
-					</a>
-					<!-- 
+					
+					<!-- inplace editable -->
+					<span class="inplaceeditable inplaceeditable-{{type}}" data-inplaceeditable="1" data-component="{{component}}" data-itemtype="{{itemtype}}" data-itemid="{{itemid}}" data-value="{{value}}" data-editlabel="{{editlabel}}" data-type="{{type}}" data-options="{{options}}">
+						<a href="#" class="quickeditlink" data-inplaceeditablelink="1" title="{{#str}} edittitlevideo, block_uploadvimeo {{/str}}">
+							<span style="margin-right:-5px;" class="quickediticon visibleifjs">{{#pix}}t/editstring,core,{{{edithint}}}{{/pix}}</span>
+						</a>
+					</span>
+					{{#js}}
+						require(['core/inplace_editable']);
+					{{/js}}
 					<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
 						<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
 					</a>
-					 -->
+					<a data-toggle="modal" data-target="#delete_{{ videoid }}" title="{{#str}} deletevideo, block_uploadvimeo {{/str}}">
+						<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
+					</a>
+					
 					
 				</li>
 				
 				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
 					<div class="container">
-					  <ul class="nav nav-tabs">
-						<li><a class="active" data-toggle="tab" href="#atalhotab_{{ videoid }}">Atalho &nbsp;&nbsp;<i class="icon fa fa-map-o fa-fw " style="color:gray"></i></a></li>
-						<li><a data-toggle="tab" href="#codigotab_{{ videoid }}">Código HTML &nbsp;&nbsp;<i class="icon fa fa-code fa-fw " style="color:gray"></i></a></li>
-					  </ul>
+						<ul class="nav nav-tabs">
+							<li><a class="active" data-toggle="tab" href="#atalhotab_{{ videoid }}">Atalho &nbsp;&nbsp;<i class="icon fa fa-map-o fa-fw " style="color:gray"></i></a></li>
+							<li><a data-toggle="tab" href="#codigotab_{{ videoid }}">Código HTML &nbsp;&nbsp;<i class="icon fa fa-code fa-fw " style="color:gray"></i></a></li>
+						</ul>
 
-					  <div class="tab-content">
-						<div id="atalhotab_{{ videoid }}" class="tab-pane fade in active codeembed rounded" style="">
-						  <p id="atalho_{{ videoid }}">[vimeo video="{{ videoid }}"]</p>
-						  <button id="atalhobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">copiar <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
-						</div>
-						<div id="codigotab_{{ videoid }}" class="tab-pane fade codeembed rounded">
-						  <p id="codigo_{{ videoid }}">{{ htmlembed }}</p>
-						  <button id="codigobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">copiar <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
-						</div>
-					  </div>
-					</div>
-				</div>
-				
-				<!-- Modal (thumbnail) -->
-				<div class="modal fade" id="image_{{ videoid }}" tabindex="-1" role="dialog">
-				  <div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content">
-					  <div class="modal-header">
-						<h5>{{ name }}</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_image_{{ videoid }}">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					  </div>
-							<div class="modal-body">
-								<div class="draggable" id="register_image" >
-									<p class="lead">
-										Para enviar uma nova imagem para o vídeo, arraste-o para dentro desta área
-										demarcada, ou clique no botão <strong>Enviar imagem</strong>.
-									</p>
-									<p>Arquivos aceitos: JPEG, PNG, or GIF</p>
-									<br>
-									<br>
-									<div>
-										<label class="btn btn-primary"> Enviar Imagem <input id="browse_image" type="file" style="display: none;">
-										</label>
-									</div>
-								</div>
+						<div class="tab-content">
+							<div id="atalhotab_{{ videoid }}" class="tab-pane fade in active codeembed rounded" style="">
+								<p id="atalho_{{ videoid }}">[vimeo video="{{ videoid }}"]</p>
+								<button id="atalhobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">copiar <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
+							</div>
+							<div id="codigotab_{{ videoid }}" class="tab-pane fade codeembed rounded">
+								<p id="codigo_{{ videoid }}">{{ htmlembed }}</p>
+								<button id="codigobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">copiar <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
 							</div>
 						</div>
-				  </div>
+					</div>
 				</div>
 				<script>
 					document.getElementById('atalhobtn_{{ videoid }}').addEventListener('click', function(event) {
-					  copyTextToClipboard('[vimeo video="{{ videoid }}"]');
+						copyTextToClipboard('[vimeo video="{{ videoid }}"]');
 					});
 					document.getElementById('codigobtn_{{ videoid }}').addEventListener('click', function(event) {
-					  copyTextToClipboard('{{{ htmlembed }}}');
+						copyTextToClipboard('{{{ htmlembed }}}');
 					});
 				</script>
+								
+				<!-- Modal (thumbnail) -->
+				<div class="modal fade" id="image_{{ videoid }}" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-dialog-centered" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5>{{ name }}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_image_{{ videoid }}">
+								  <span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div class="draggable" id="register_image" >
+									<form action="{{{ urleditthumbnail }}}={{ videoid }}" method="post" enctype="multipart/form-data" id="formnewthumbnail_{{ videoid }}">
+										<p class="lead">Arraste a imagem para dentro desta área	demarcada, ou clique no botão <strong>Selecionar imagem</strong>.</p>
+										<p>Arquivos aceitos: JPEG, PNG, or GIF</p>
+										<img id="previewimg_{{ videoid }}" style="height: 55px;" class="" />
+										<br><br>										
+										<label class="btn btn-primary"> Selecionar Imagem <input id="newthumbnail_{{ videoid }}" name="newthumbnail_{{ videoid }}" type="file" accept=".gif, .jpg, .png" style="display: none;"></label>
+										<br><input class="btn btn-primary" type="submit" id="submit_{{ videoid }}"></input>
+									</form>
+									<div id="msgnewthumbnail_{{ videoid }}"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script>
+					$( document ).on('change', '#newthumbnail_{{ videoid }}', function(){
+						const file = $(this)[0].files[0];
+			            const fileReaderImg = new FileReader();
+			            fileReaderImg.onloadend = function(){
+			                $('#previewimg_{{ videoid }}').attr('src', fileReaderImg.result);
+			            }
+			            fileReaderImg.readAsDataURL(file);
+
+					});
+					/*
+					$(document).ready(function(e){
+					    // Submit form data via Ajax
+					    $("#formnewthumbnail_{{ videoid }}").on('submit', function(e){
+					        e.preventDefault();
+					        $.ajax({
+					            type: 'POST',
+					            url: '{{{ urleditthumbnail }}}={{ videoid }}',
+					            data: new FormData(this),
+					            dataType: 'json',
+					            contentType: false,
+					            cache: false,
+					            processData: false,
+					            beforeSend: function(){
+					                $('#submit_{{ videoid }}').attr("disabled","disabled");
+					            },
+					            success: function(response){ 
+					            	console.log(response);
+					            	$('#thumbnail_{{ videoid }}').attr('src', response.scr);
+					                $("#submit_{{ videoid }}").removeAttr("disabled");
+					            }
+					        });
+					    });
+					});		*/
+
+					
+				</script>
+				
 				<!-- Modal (play) -->
 				<div class="modal fade" id="play_{{ videoid }}" tabindex="-1" role="dialog">
-				  <div class="modal-dialog modal-dialog-centered" role="document">
-					<div class="modal-content">
-					  <div class="modal-header">
-						<h5>{{ name }}</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_play_{{ videoid }}">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					  </div>
-					  <div class="modal-body">
-						{{{ htmlembed }}}
-					  </div>
+					<div class="modal-dialog modal-dialog-centered" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5>{{ name }}</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_play_{{ videoid }}">
+								  <span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								{{{ htmlembed }}}
+							</div>
+						</div>
 					</div>
-				  </div>
 				</div>
 				<script>
 					$( document ).on("mouseleave", "#play_{{ videoid }}", function (e) {
 						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
 					});				
 				</script>
-				<!-- Collapse (thumb) -->
-				<div class="collapse" id="thumb_videoid_{{ videoid }}">
-					<div class="container">
-						<div style="height:100px;"><p>Incluir aqui o código de upload da imagem (thumbnail) do vídeo: {{ videoid }}</p></div>
-					</div>
-				</div>
+				
 				<!-- Modal (delete) -->
 				<div class="modal fade" id="delete_{{ videoid }}" tabindex="-1"	role="dialog">
 					<div class="modal-dialog modal-dialog-centered" role="document">
@@ -289,14 +312,14 @@
 								<div> {{{ htmlembed }}} </div>
 								
 								<div style="padding-top:310px;">
-								<form action="{{{ urldeletevideo }}}={{ videoid }}" method="post">
+								<form action="{{{ urldeletevideo }}}={{ videoid }}" method="post" id="formnewthumbnail_{{ videoid }}">
 									<br />
 									<h6>
 										<h6>Após apagado, o vídeo não poderá ser recuperado (não há	backup).</h6>
 										<input type="checkbox" onchange="document.getElementById('btn_delete_{{ videoid }}').disabled = !this.checked;" />
 										Confirmo que o vídeo acima pode ser apagado do Vimeo.
 									</h6>
-									<br /><br />
+									<br />
 									<input type="submit" name="btn_delete_{{ videoid }}" class="btn btn-secondary btn-sm" id="btn_delete_{{ videoid }}" value=" {{#str}} btndelete, block_uploadvimeo {{/str}} " disabled />
 								</form>
 								</div>
@@ -312,13 +335,14 @@
 
 				{{/ myvideos }}
 			</ul>
-		</div>	
+		</div>
 	</div><!-- end card my videos -->
 
 </div>
 
 <script>
 $( document ).ready(function() {
+	
       //http://hayageek.com/drag-and-drop-file-upload-jquery/
       var obj = $(".draggable");
       obj.on('dragenter', function (e) 
@@ -338,8 +362,8 @@ $( document ).ready(function() {
       });
   
       
-      obj.on('drop', handleFileSelect);     
-      $('input[type="file"]').change(handleFileSelect); 
+      obj.on('drop', handleFileSelect);
+      $('#browse').change(handleFileSelect);//$('input[type="file"]').change(handleFileSelect); 
       
       //prevent open file
       $(document).on('dragenter', function (e) 
@@ -368,5 +392,5 @@ $( document ).ready(function() {
             
             MY_APP.sendFile( files, '{{ accesstoken }}' );
       }      
-    });
+    });  
 </script>

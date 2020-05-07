@@ -24,7 +24,7 @@ class uploadvimeo {
         $description = self::get_description_video($videoid);
         
         if (stripos($description, $user->username) === false ) {
-            $description .= '(' . $user->username . ')';
+            $description .= ' (' . $user->username . ')';
         };
         
         $updated = self::update_video($videoid, $description);

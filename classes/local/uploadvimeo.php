@@ -18,24 +18,15 @@ class uploadvimeo {
         global $DB;
         
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
-        
         $usernamefolder = 'MoodleUpload_' . $user->username;
-        
-        //$config = get_config('block_uploadvimeo');
-        
-        //$client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
-        
         $folder = self::get_folder($usernamefolder);
-        
         $videoid = str_replace('/videos/', '', $urivideo);
-        
         $description = self::get_description_video($videoid);
         
         if (stripos($description, $user->username) === false ) {
             $description .= '(' . $user->username . ')';
         };
         
-        //echo '<pre>';print_r(context_course::instance($courseid)); exit;
         $updated = self::update_video($videoid, $description);
         
         if ($updated) {
@@ -50,6 +41,9 @@ class uploadvimeo {
         if (!$folder) {
             
             $folder = self::create_folder($usernamefolder);
+            if (!$folder) {
+                return false;
+            }
             
         }
         
@@ -213,8 +207,7 @@ class uploadvimeo {
         
         $videoaddfolder = $client->request('/me/projects/' . $folderid . '/videos/' . $videoid, array(), 'PUT');
         
-        if ($videoaddfolder['status'] != '204') {    // 204 No Content - The video was added.
-            echo '<hr><pre>response video add folder: <br>'; print_r($videoaddfolder); echo '</pre>';
+        if ($videoaddfolder['status'] != '204') {    // 204 No Content - The video was added.            
             return false;
         }
         return true;
@@ -228,7 +221,6 @@ class uploadvimeo {
         $folderdeleted = $client->request('/me/projects/' . $folderid, array('should_delete_clips' => false), 'DELETE');
         
         if ($folderdeleted['status'] != '204') {    // 204 No Content - The video was added.
-            echo '<hr><pre>response video add folder: <br>'; print_r($folderdeleted); echo '</pre>';
             return false;
         }
         return true;
@@ -308,7 +300,6 @@ class uploadvimeo {
         $editvideo = $client->request('/videos/'.$videoid, $array, 'PATCH');
         
         if (!$editvideo['status'] == '200') { // OK
-            echo '<h5>update_video</h5><pre>'; print_r($editvideo); '</pre>';
             return false;
         }
         else
@@ -323,7 +314,6 @@ class uploadvimeo {
         $editvideo = $client->request('/videos/'.$videoid, array(), 'GET');
         
         if (!$editvideo['status'] == '200') { // OK
-            //echo '<h5>update_video</h5><pre>'; print_r($editvideo); '</pre>';
             return false;
         }
         return $editvideo['body']['description'];
@@ -344,7 +334,6 @@ class uploadvimeo {
         $editvideo = $client->request('/videos/'.$videoid, $array, 'PATCH');
         
         if (!$editvideo['status'] == 200) { // OK
-            echo '<h5>update_video</h5><pre>'; print_r($editvideo); '</pre>';
             return false;
         }
         

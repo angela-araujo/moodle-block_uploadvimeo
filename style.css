@@ -98,20 +98,21 @@
 }
 
 .block-uploadvimeo .inplaceeditable .editinstructions {
-  /*  display: none;*/
+  /*  display: none;
     margin-top: -46px;
     height: 25px;
-    padding: 0;
-    background-color: white;
-	border: none;
+    padding: 0;*/
+    /*background-color: white;
+	border: none;*/
+    line-height: 20px;
+    height: 25px;
+    margin-top: -28px;
     
 }
 
-.block-uploadvimeo .inplaceeditable input {
-    
-    /*margin-top: 0;
-    width: 350px;*/
-     
+.block-uploadvimeo .preview-img {
+	height: 55px;
+    min-width: 70px;
 }
 
 .block-uploadvimeo .videoinplace {
@@ -124,6 +125,15 @@
 	/*background-color: bisque;*/
     position: relative;
 }
+
+.block-uploadvimeo .draggable-image {
+    text-align: center;
+    border: 1px solid #92b0b3;
+    
+	outline-offset: -10px;
+	background-color: white;
+	padding: 20px;
+  }
 
   /* Space out content a bit */
   body {

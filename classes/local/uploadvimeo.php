@@ -176,17 +176,15 @@ class uploadvimeo {
                 
                 $videoid = str_replace('/videos/', '', $video['uri']); //[uri] => /videos/401242079
                 $uri = 'https://player.vimeo.com/video/'.$videoid.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
-                $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title=""></iframe>';
+                $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title="'.$video['name'].'"></iframe>';
                 
                 $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$videoid.'" data-target="#videoid_'.$videoid.'">';
                 $displayvalue .= '<img src="'.$video['pictures']['sizes'][0]['link'].'" class="rounded" name="thumbnail_'.$videoid.'" id="thumbnail_'.$videoid.'">';
                 $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$video['name'].'</span></a>';
-                
                 $titleinplace = new \core\output\inplace_editable('block_uploadvimeo', 'title', $videoid, true,
                         $displayvalue, $video['name'],
                         get_string('edittitlevideo', 'block_uploadvimeo'),  
-                        'Novo título para o vídeo ' . format_string($video['name']));
-                
+                        'Novo título para o vídeo ' . format_string($video['name']));                
                 
                 $myvideos[] = array('name' => $video['name'],
                         'linkvideo' => $video['link'],

@@ -26,19 +26,23 @@ if ($urivideo) {
     redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
     
 } else if (($newthumbnail) and ($videoid)){
-
-    $urinewthumnail = uploadvimeo::edit_thumbnail($videoid, $newthumbnail);
-    delete_file_temp($newthumbnail);
-    
-    /*
     $response = array(
-            'status' => 1,
+            'status' => 0,
             'message' => 'Imagem alterada com sucesso!',
-            'src' => ''
-    );    
-    $response[2] = $urinewthumnail;
-    echo json_encode($response);
-    */
+            'urlnewthumbnail' => ''
+    );
+    if (!file_exists($newthumbnail)) {
+        $response['status'] = 1;
+        $response['message'] = 'Arquivo não enconrado';
+        $response['urlnewthumbnail'] = $newthumbnail;
+    } else {    
+        $urinewthumnail = uploadvimeo::edit_thumbnail($videoid, $newthumbnail);
+        delete_file_temp($newthumbnail);    
+        $response['urlnewthumbnail'] = $urinewthumnail;
+    }
+    
+    //echo json_encode($response);
+    
 
     redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
 

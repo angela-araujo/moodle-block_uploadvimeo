@@ -101,25 +101,42 @@ $string['config_headingrestriction'] = 'Restrição';
 $string['config_whitelist'] = 'Domínios a serem considerados na whitelist de privacidade';
 
 // Page form.
-$string['returncourse'] = 'Retornar para o curso';
-$string['instructions'] = 'Para enviar um vídeo, arraste-o para dentro desta área demarcada, ou clique no botão <b>Enviar Vídeo</b>';
+$string['titlepageblock'] = 'Enviar vídeos para a plataforma Vimeo';
+$string['instructions'] = 'Para enviar um vídeo, arraste-o para dentro desta área demarcada, ou clique no botão <strong>Enviar vídeo</strong>.';
+$string['btnsendvideo'] = 'Enviar Vídeo';
+$string['msgalertvimeo'] = '<strong>Atenção:</strong> Ao enviar vídeos, você deve respeitar as regras do Vimeo, carregando apenas vídeos feitos por você que não tenham conteúdo impróprio. Para maiores informações, <a href="https://vimeo.com/help/guidelines#video" target="_blank">clique aqui</a>.';
+$string['msgvideosuccess'] = 'Vídeo enviado com sucesso!';
+$string['msguploadvimeo'] = '<b>ATENÇÃO</b>: o vídeo precisa ser processado pelos servidores do Vimeo e pode levar alguns minutos para poder ser exibido no seu conteúdo.';
+
+$string['titlemyvideos'] = 'Meus vídeos';
 $string['text_line1'] = 'Aqui são apresentados os vídeos que já foram enviados por você para a plataforma Vimeo. ';
 $string['text_line2_with_video'] = 'Clique no vídeo desejado para obter seu código de incorporação e poder incluí-lo no seu conteúdo.';
 $string['text_line2_empty'] = 'No momento, não há vídeos disponíveis.';
+
 $string['edittitlevideo'] = 'Editar título do vídeo';
+$string['showcodeembed'] = 'Mostrar código para embutir vídeo';
+$string['playvideo'] = 'Tocar vídeo';
 $string['editthumbnailvideo'] = 'Editar imagem do vídeo';
 $string['deletevideo'] = 'Excluir vídeo definitivamente';
-$string['playvideo'] = 'Tocar vídeo';
-$string['showcodeembed'] = 'Mostrar código para embutir vídeo';
+
+$string['tabshortcut'] = 'Atalho &nbsp;&nbsp;';
+$string['tabhtml'] = 'Código HTML &nbsp;&nbsp;';
+$string['btncopy'] = 'copiar';
+
+$string['titlethumbnail'] = 'Alterar imagem do vídeo: ';
+$string['instructionsthumbnail'] = 'Clique no botão <strong>Selecionar imagem</strong>.';
+$string['instructionstypesthumbnail'] = 'Arquivos aceitos: JPEG, PNG, or GIF';
+$string['btnthumbnail'] = 'Selecionar Imagem';
+
+$string['titledelete'] = 'Apagar vídeo do Vimeo: ';
+$string['msginstructionsdelete'] = 'Após apagado, o vídeo não poderá ser recuperado (não há backup).';
+$string['msgconfirmdelete'] = 'Confirmo que o vídeo acima pode ser apagado do Vimeo.';
 $string['btndelete'] = 'Apagar vídeo';
 
 // Capability strings.
 $string['uploadvimeo:myaddinstance'] = 'Adicionar bloco Envio de Vídeos - Vimeo';
 $string['uploadvimeo:addinstance'] = 'Adicionar bloco Envio de Vídeos - Vimeo';
 $string['uploadvimeo:seepagevideos'] = 'Ver página de Envio de vídeos - Vimeo';
-
-// Upload video.
-$string['text_upload_sucess'] = '<b>ATENÇÃO</b>: o vídeo precisa ser processado pelos servidores do Vimeo e pode levar alguns minutos para poder ser exibido no seu conteúdo.';
 
 // Shortcodes.
 $string['shortcode:vimevideo'] = 'Shortcode para embedar vídeo vimeo';

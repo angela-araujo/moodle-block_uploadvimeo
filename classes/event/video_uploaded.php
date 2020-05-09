@@ -43,7 +43,7 @@ class video_uploaded extends \core\event\base {
     public function get_description() {
         return "The user with id '$this->userid' has
                 uploaded a video with the id '{$this->other['videoid']}'
-                in the block Upload Vimeo with course
+                to folder '{$this->other['folder']}' in the block Upload Vimeo with course
                 id '{$this->courseid}'.";
     }
 }

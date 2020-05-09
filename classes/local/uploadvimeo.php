@@ -6,6 +6,7 @@ use Vimeo\Vimeo;
 use context_course;
 
 define('VIDEOS_PER_PAGE', 100);
+define('UPLOADVIMEO_ERROR', -1);
 
 // Connect to Vimeo.
 require_once(__DIR__ . '/../../vendor/autoload.php');
@@ -19,29 +20,28 @@ class uploadvimeo {
         
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $usernamefolder = 'MoodleUpload_' . $user->username;
-        $folder = self::get_folder($usernamefolder);
         $videoid = str_replace('/videos/', '', $urivideo);
-        $description = self::get_description_video($videoid);
         
-        if (stripos($description, $user->username) === false ) {
-            $description .= ' (' . $user->username . ')';
-        };
+        // Log updaload event.
+        $event = \block_uploadvimeo\event\video_uploaded::create(array('courseid' => $courseid,
+                'objectid' => $courseid,
+                'context' => context_course::instance($courseid),
+                'other' => array('videoid' => $videoid, 'folder' => $usernamefolder)));
+        $event->trigger();
         
-        $updated = self::update_video($videoid, $description);
+        // verify video
+        if (! self::verify_upload($videoid) ) {
+            debugging(get_string('msg_error_not_found_video', 'block_uploadvimeo', $videoid), NO_DEBUG_DISPLAY);
+            return false;
+        }        
         
-        if ($updated) {
-            // Log updaload event.
-            $event = \block_uploadvimeo\event\video_uploaded::create(array('courseid' => $courseid,
-                    'objectid' => $courseid,
-                    'context' => context_course::instance($courseid),
-                    'other' => array('videoid' => $videoid)));
-            $event->trigger();
-        }
+        $folder = self::get_folder($usernamefolder);
         
         if (!$folder) {
             
             $folder = self::create_folder($usernamefolder);
             if (!$folder) {
+                debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', $usernamefolder), NO_DEBUG_DISPLAY);
                 return false;
             }
             
@@ -50,8 +50,11 @@ class uploadvimeo {
         $moved = self::move_video_to_folder($folder['id'], $videoid);
         
         if (!$moved) {
+            debugging(get_string('msg_error_not_move_video_folder', 'block_uploadvimeo', array('videoid' => $videoid, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
             return false;
         }
+        
+        return true;
         
         
     }
@@ -300,7 +303,7 @@ class uploadvimeo {
         $editvideo = $client->request('/videos/'.$videoid, $array, 'PATCH');
         
         if (!$editvideo['status'] == '200') { // OK
-            return false;
+            return UPLOADVIMEO_ERROR;
         }
         else
             return true;
@@ -314,7 +317,7 @@ class uploadvimeo {
         $editvideo = $client->request('/videos/'.$videoid, array(), 'GET');
         
         if (!$editvideo['status'] == '200') { // OK
-            return false;
+            return UPLOADVIMEO_ERROR;
         }
         return $editvideo['body']['description'];
     }
@@ -334,6 +337,7 @@ class uploadvimeo {
         $editvideo = $client->request('/videos/'.$videoid, $array, 'PATCH');
         
         if (!$editvideo['status'] == 200) { // OK
+            debugging(get_string('msg_error_vimeo', 'block_uploadvimeo', $videoid), NO_DEBUG_DISPLAY);
             return false;
         }
         
@@ -380,6 +384,26 @@ class uploadvimeo {
         
         return false;            
         
+    }
+    
+    static private function verify_upload($videoid) {
+        
+        $config = get_config('block_uploadvimeo');
+        $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
+        
+        $video = $client->request('/videos/'.$videoid, array(), 'GET');
+        
+        if (!$video['status'] == '200') { // OK
+            return UPLOADVIMEO_ERROR;
+        }
+        $link = $video['body']['link'];
+        
+        $response = $client->request('', array(), 'HEAD', array('upload' => $link));
+        
+        if (! $response['status'] == 200) {
+            return false;
+        }
+        return true;
     }
     
     

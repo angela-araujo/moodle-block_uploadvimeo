@@ -17,8 +17,12 @@ $userid = $USER->id;
 
 if ($urivideo) {
 
-    uploadvimeo::video_upload($courseid, $userid, $urivideo);
-    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
+    $response = uploadvimeo::video_upload($courseid, $userid, $urivideo);
+    if ($response == false) {
+        redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]), get_string('msg_error_vimeo', 'block_uploadvimeo'));
+    } else {
+        redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
+    }
     
 } else if ($deletevideoid) {
     

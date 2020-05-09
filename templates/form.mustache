@@ -360,7 +360,7 @@ $( document ).ready(function() {
             $(this).css('border', '');
             let files = (evt.originalEvent && evt.originalEvent.dataTransfer)?  evt.originalEvent.dataTransfer.files : $(this).get(0).files
             
-            MY_APP.sendFile( files, '{{ accesstoken }}' );
+            MY_APP.sendFile( files, '{{ accesstoken }}', '{{ username }}' );
       }      
     });  
 	

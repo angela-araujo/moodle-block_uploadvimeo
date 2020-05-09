@@ -31,7 +31,7 @@
                 'style="min-width: 100%;margin-top: 0px; height: 100px">',
             preConfirm: () => {
                 let title = document.getElementById('swal-input1').value;
-                let description = document.getElementById('swal-input2').value + ' [' + username + ']';
+                let description = document.getElementById('swal-input2').value + ' (' + username + ')';
                 if (!title || !description) {
                     Swal.showValidationMessage(
                         'Obrigatório o preenchimento do título e da descrição'

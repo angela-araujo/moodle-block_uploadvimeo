@@ -64,7 +64,8 @@
 				title: {
 					name: 'hide',
 					portrait: 'hide'
-				}
+				},
+				speed: true
 			}
 		}
         if( opts.extraOpts ) {
@@ -144,7 +145,7 @@
 
         self = this;
         var options = {            
-            chunkSize: 5000000,
+            chunkSize: 20000000,
             endpoint: self.url,
             uploadUrl: self.url,
             resume: true,

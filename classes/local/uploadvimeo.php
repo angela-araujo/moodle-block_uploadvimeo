@@ -4,6 +4,7 @@ namespace block_uploadvimeo\local;
 
 use Vimeo\Vimeo;
 use context_course;
+use PhpParser\Node\Stmt\Else_;
 
 define('VIDEOS_PER_PAGE', 100);
 define('UPLOADVIMEO_ERROR', -1);
@@ -21,6 +22,8 @@ class uploadvimeo {
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $usernamefolder = 'MoodleUpload_' . $user->username;
         $videoid = str_replace('/videos/', '', $urivideo);
+        $maxattemptverifyupload = 5;
+        $msgdebug = '';
         
         // Log updaload event.
         $event = \block_uploadvimeo\event\video_uploaded::create(array('courseid' => $courseid,
@@ -29,22 +32,33 @@ class uploadvimeo {
                 'other' => array('videoid' => $videoid, 'folder' => $usernamefolder)));
         $event->trigger();
         
-        // verify video
-        if (! self::verify_upload($videoid) ) {
-            debugging(get_string('msg_error_not_found_video', 'block_uploadvimeo', $videoid), NO_DEBUG_DISPLAY);
-            return false;
-        }        
+        // verify upload video.
+        for ($i = 1; $i <= $maxattemptverifyupload; $i++) {
+            
+            if ($i > 1) sleep(5);
+            
+            $uploadstatus = self::verify_upload($videoid);
+            
+            $msgdebug .= '<br>Attempt: ' . $i . '. upload.status: ' . $uploadstatus ;
+            
+            if ($uploadstatus == 'complete') break;   
+            
+        }
         
+        if ( ! ($uploadstatus == 'complete') ) {
+            debugging('Error verify status - videoid=' . $videoid . $msgdebug, NO_DEBUG_DISPLAY);
+        } else {
+            debugging('Status videoid ' . $videoid . ':' . $uploadstatus . ' verify: ' . $msgdebug , NO_DEBUG_DISPLAY);
+        }
         $folder = self::get_folder($usernamefolder);
         
         if (!$folder) {
             
             $folder = self::create_folder($usernamefolder);
             if (!$folder) {
-                debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', $usernamefolder), NO_DEBUG_DISPLAY);
+                debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', array('videoid' => $videoid, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
                 return false;
-            }
-            
+            }            
         }
         
         $moved = self::move_video_to_folder($folder['id'], $videoid);
@@ -54,8 +68,7 @@ class uploadvimeo {
             return false;
         }
         
-        return true;
-        
+        return true;        
         
     }
     
@@ -256,7 +269,7 @@ class uploadvimeo {
             
             list($useridvimeo, $folderid) = explode(',', $urifolder);
             
-            return $folderid;
+            return array('id'=>$folderid);
             
         } else {
             return false;
@@ -396,14 +409,17 @@ class uploadvimeo {
         if (!$video['status'] == '200') { // OK
             return UPLOADVIMEO_ERROR;
         }
+        
+        /*
         $link = $video['body']['link'];
-        
         $response = $client->request('', array(), 'HEAD', array('upload' => $link));
-        
         if (! $response['status'] == 200) {
             return false;
         }
-        return true;
+        */
+        
+        return $video['body']['upload']['status'];
+        //return $video['body']['status'];
     }
     
     

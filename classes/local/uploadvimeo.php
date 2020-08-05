@@ -4,7 +4,6 @@ namespace block_uploadvimeo\local;
 
 use Vimeo\Vimeo;
 use context_course;
-use PhpParser\Node\Stmt\Else_;
 
 define('VIDEOS_PER_PAGE', 100);
 define('UPLOADVIMEO_ERROR', -1);
@@ -177,17 +176,22 @@ class uploadvimeo {
         global $OUTPUT;
         $config = get_config('block_uploadvimeo');
         $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
+
+        $folderspage1 = $client->request('/me/projects/'.$folderid.'/videos', array(
+            'per_page' => VIDEOS_PER_PAGE,
+            'page' => 1), 'GET');
+
+        //echo '<pre>'; print_r($folderspage1); echo '</pre>';
         
-        $videos = $client->request('/me/projects/'.$folderid.'/videos');
-        
-        if ($videos['body']['total'] <> '0') { // OK
-            
-            foreach ($videos['body']['data'] as $video) {
-                
+        if ($folderspage1['body']['total'] <> '0') {
+            $totalpages = ($folderspage1['body']['total'] > VIDEOS_PER_PAGE)? ceil($folderspage1['body']['total'] / VIDEOS_PER_PAGE): 1;
+
+            // Get videos from first page.
+            foreach ($folderspage1['body']['data'] as $video) {
                 $videoid = str_replace('/videos/', '', $video['uri']); //[uri] => /videos/401242079
                 $uri = 'https://player.vimeo.com/video/'.$videoid.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
                 $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title="'.$video['name'].'"></iframe>';
-                
+    
                 $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$videoid.'" data-target="#videoid_'.$videoid.'">';
                 $displayvalue .= '<img src="'.$video['pictures']['sizes'][0]['link'].'" class="rounded" name="thumbnail_'.$videoid.'" id="thumbnail_'.$videoid.'">';
                 $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$video['name'].'</span></a>';
@@ -205,9 +209,42 @@ class uploadvimeo {
                 );
                 
             }
-            
+
+            // Get videos from other pages.
+            if ($totalpages > 1) {
+                for ($i = 2; $i <= $totalpages; $i++) {
+                    $foldersnextpage = $client->request('/me/projects/'.$folderid.'/videos', array(
+                        'per_page' => VIDEOS_PER_PAGE,
+                        'page' => $i), 'GET');
+
+                    //echo '<pre>'; print_r($foldersnextpage); echo '</pre>';
+                    
+                    foreach ($foldersnextpage['body']['data'] as $video) {
+                        $videoid = str_replace('/videos/', '', $video['uri']); //[uri] => /videos/401242079
+                        $uri = 'https://player.vimeo.com/video/'.$videoid.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
+                        $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title="'.$video['name'].'"></iframe>';
+                        
+                        $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$videoid.'" data-target="#videoid_'.$videoid.'">';
+                        $displayvalue .= '<img src="'.$video['pictures']['sizes'][0]['link'].'" class="rounded" name="thumbnail_'.$videoid.'" id="thumbnail_'.$videoid.'">';
+                        $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$video['name'].'</span></a>';
+                        $titleinplace = new \core\output\inplace_editable('block_uploadvimeo', 'title', $videoid, true,
+                                $displayvalue, $video['name'],
+                                get_string('edittitlevideo', 'block_uploadvimeo'),  
+                                'Novo título para o vídeo ' . format_string($video['name']));                
+                        
+                        $myvideos[] = array('name' => $video['name'],
+                                'linkvideo' => $video['link'],
+                                'videoid'   => $videoid, 
+                                'htmlembed' => $htmlembed, //'' . $videovalue['embed']['html'] . '',
+                                'thumbnail' => $video['pictures']['sizes'][0]['link'],
+                                'titleinplace' => $OUTPUT->render($titleinplace)
+                        );
+                    }
+                }
+            }
+
             return $myvideos;
-            
+
         } else {
             
             return false;

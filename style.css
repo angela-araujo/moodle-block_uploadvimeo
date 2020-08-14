@@ -118,9 +118,13 @@
 .block-uploadvimeo .videoinplace {
 	/*background-color: antiquewhite;*/
     width: 500px;
-    display: inline-block;	
+    display: inline-block;    
 }
 
+.block-uploadvimeo .videoinplace .inplaceeditable.inplaceeditingon input {
+    width: 495px;    
+}
+    
 .block-uploadvimeo .menuvideo {
 	/*background-color: bisque;*/
     position: relative;

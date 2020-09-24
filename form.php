@@ -23,6 +23,8 @@
 require ('../../config.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$page     = optional_param('page', 0, PARAM_INT);
+
 $userid = $USER->id;
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
@@ -41,5 +43,5 @@ $config = get_config('block_uploadvimeo');
 require_capability('block/uploadvimeo:seepagevideos', $coursecontext);
 
 $renderer = $PAGE->get_renderer('block_uploadvimeo');
-$renderer->display_page_videos($courseid, $userid, $config);
+$renderer->display_page_videos($courseid, $userid, $config, $page);
 

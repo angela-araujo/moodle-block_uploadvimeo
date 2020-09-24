@@ -11,6 +11,9 @@ define('UPLOADVIMEO_ERROR', -1);
 // Connect to Vimeo.
 require_once(__DIR__ . '/../../vendor/autoload.php');
 
+global $CFG;
+
+require_once($CFG->dirroot."/lib/weblib.php");
 
 class uploadvimeo {
     
@@ -172,6 +175,12 @@ class uploadvimeo {
             
     }
     
+    /**
+     * @deprecated use new get_videos_from_folder_pagination
+     *  
+     * @param int $folderid
+     * @return mixed
+     */
     static public function get_videos_from_folder($folderid) {
         global $OUTPUT;
         $config = get_config('block_uploadvimeo');
@@ -459,6 +468,81 @@ class uploadvimeo {
         //return $video['body']['status'];
     }
     
-    
+    /**
+     * Get all videos from the specific page with pagination.
+     * 
+     * @param int $folderid
+     * @param int $page
+     * @param int $perpage
+     * @return array [totalvideos => , myvideos => [] ]
+     */
+    static public function get_videos_from_folder_pagination($folderid, $page = 1, $perpage = 20) {
+        global $OUTPUT;
+        
+        $config = get_config('block_uploadvimeo');
+        $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
+        
+        // Only to get total videos. @todo: Melhorar rotina
+        $result = $client->request('/me/projects/'.$folderid.'/videos', array('per_page' => 100, 'page' => 1), 'GET');
+        $totalvideos = $result['body']['total'];
+        
+        /**
+         * per_page: The number of items to show on each page of results, up to a maximum of 100.
+         * @see https://developer.vimeo.com/api/reference/folders#get_project_videos 
+         */
+        $perpage = ($perpage > 100)? 100: $perpage;
+
+        $page = ($page < 1)? 1: $page;
+        
+        $folderspage = $client->request('/me/projects/'.$folderid.'/videos', array(
+            'per_page' => $perpage,
+            'page' => $page,
+            'sort' => 'alphabetical', // Options: alphabetical, date, default, duration, last_user_action_event_date
+            'direction' => 'desc',
+        ), 'GET');
+        
+        if ( (!$folderspage['body']['total']) or ($folderspage['body']['total'] = '0') ) {
+            return array();
+        }
+        
+        // Get videos from page.
+        foreach ($folderspage['body']['data'] as $video) {
+            $videoid = str_replace('/videos/', '', $video['uri']); //[uri] => /videos/401242079
+            $uri = 'https://player.vimeo.com/video/'.$videoid.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=168450';
+            $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title="'.$video['name'].'"></iframe>';
+            
+            $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$videoid.'" data-target="#videoid_'.$videoid.'">';
+            $displayvalue .= '<img src="'.$video['pictures']['sizes'][0]['link'].'" class="rounded" name="thumbnail_'.$videoid.'" id="thumbnail_'.$videoid.'">';
+            $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$video['name'].'</span></a>';
+            $titleinplace = new \core\output\inplace_editable('block_uploadvimeo', 'title', $videoid, true,
+                $displayvalue, $video['name'],
+                get_string('edittitlevideo', 'block_uploadvimeo'),
+                'Novo título para o vídeo ' . format_string($video['name']));
+                
+            $myvideos[] = array('name' => $video['name'],
+                'linkvideo' => $video['link'],
+                'videoid'   => $videoid,
+                'htmlembed' => $htmlembed, //'' . $videovalue['embed']['html'] . '',
+                'thumbnail' => $video['pictures']['sizes'][0]['link'],
+                'titleinplace' => $OUTPUT->render($titleinplace)
+            );
+            
+        }
+        $nextlink = new \moodle_url($folderspage['body']['paging']['next']);
+        $previouslink = new \moodle_url($folderspage['body']['paging']['previous']);
+        $firstlink = new \moodle_url($folderspage['body']['paging']['first']);
+        $lastlink = new \moodle_url($folderspage['body']['paging']['last']);
+        
+        return array(
+            'totalvideos' => $totalvideos,
+            'page' => $folderspage['body']['page'],
+            'perpage' => $folderspage['body']['per_page'],
+            'next' => $nextlink->get_param('page'),
+            'previous' => $previouslink->get_param('page'),
+            'first' => $firstlink->get_param('page'),
+            'last' => $lastlink->get_param('page'),
+            'videos' => $myvideos);
+        
+    }    
     
 }

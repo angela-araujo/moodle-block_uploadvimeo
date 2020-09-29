@@ -42,12 +42,14 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
         $newvalue = clean_param($newvalue, PARAM_NOTAGS);
 
         $response = uploadvimeo::edit_title($itemid, $newvalue);
+
+        $shortenedvalue = uploadvimeo::get_short_title($newvalue, 50);
         
         if ($response) {            
             
             $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$itemid.'" data-target="#videoid_'.$itemid.'">';
             $displayvalue .= '<img src="'.$response.'" class="rounded" name="thumbnail_'.$itemid.'" id="thumbnail_'.$itemid.'">';
-            $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$newvalue.'</span></a>';
+            $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$shortenedvalue.'</span></a>';
             
             // Prepare the element for the output:
             return new \core\output\inplace_editable('block_uploadvimeo', 'title', $itemid, true,

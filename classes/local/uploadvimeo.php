@@ -5,7 +5,7 @@ namespace block_uploadvimeo\local;
 use Vimeo\Vimeo;
 use context_course;
 
-define('VIDEOS_PER_PAGE', 100);
+define('VIDEOS_PER_PAGE', 20);
 define('FOLDERS_PER_PAGE', 100);
 define('UPLOADVIMEO_ERROR', -1);
 
@@ -53,18 +53,19 @@ class uploadvimeo {
         } else {
             debugging('Status videoid ' . $videoid . ':' . $uploadstatus . ' verify: ' . $msgdebug , NO_DEBUG_DISPLAY);
         }
-        $folder = self::get_folder($usernamefolder);
+        
+        $folder = self::get_folder($userid);
         
         if (!$folder) {
             
-            $folder = self::create_folder($usernamefolder);
+            $folder = self::create_folder($userid, $usernamefolder);
             if (!$folder) {
                 debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', array('videoid' => $videoid, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
                 return false;
             }            
         }
         
-        $moved = self::move_video_to_folder($folder['id'], $videoid);
+        $moved = self::move_video_to_folder($folder->folderid, $videoid);
         
         if (!$moved) {
             debugging(get_string('msg_error_not_move_video_folder', 'block_uploadvimeo', array('videoid' => $videoid, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
@@ -98,6 +99,14 @@ class uploadvimeo {
     }
     
 
+    /**
+     * Get folder from user.
+     * This function search folder first in db, if don't find then search in vimeo. If find folder,
+     * persist in db and return a new object folder
+     * 
+     * @param int $userid
+     * @return mixed|Object|boolean object folder or false
+     */
     static public function get_folder($userid) {
         
         global $DB;
@@ -118,19 +127,18 @@ class uploadvimeo {
         $foldervimeoarray = self::search_folder_vimeo($client, $foldername, 1);
         
         // If founded in vimeo then persist folder in db.
-        if ($foldervimeoarray) { 
-            
+        if ($foldervimeoarray) {
             $foldervimeo = new \stdClass();
             $foldervimeo->userid = $userid;
             $foldervimeo->clientid = $config->config_clientid;
             $foldervimeo->foldername = $foldervimeoarray['foldername'];
             $foldervimeo->folderid = $foldervimeoarray['folderid'];
-            $foldervimeo->timecreatedvimeo = $foldervimeoarray['timecreatedvimeo'];
+            $foldervimeo->timecreatedvimeo = strtotime($foldervimeoarray['timecreatedvimeo']);
             $foldervimeo->timecreated = time();
             
             $moodlefolderid = $DB->insert_record('block_uploadvimeo_folders', $foldervimeo);
             
-            return $DB->get_record('block_uploadvimeo_folders', array('id' => $moodlefolderid), '*', IGNORE_MISSING);
+            return $DB->get_record('block_uploadvimeo_folders', array('id' => $moodlefolderid), '*', MUST_EXIST);
         } else 
             return false;
             
@@ -262,37 +270,34 @@ class uploadvimeo {
      *      POST | https://api.vimeo.com/me/projects
      * @return int|boolean
      */
-    static private function create_folder(string $foldername) {
+    static private function create_folder($userid, $foldername) {
+        
+        global $DB;
         
         $config = get_config('block_uploadvimeo');
         $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
         
         $folder = $client->request('/me/projects', array('name' => $foldername), 'POST');
         
-        if ($folder['status'] == '201') { // 201 Created - The folder was created.
+        // status = 201 Created - The folder was created.
+        if ($folder['status'] == '201') { 
             
-            // $folder['body']['uri'] = /users/42385845/projects/1621667
+            // Ex.: $folder['body']['uri'] = /users/42385845/projects/1621667
             $urifolder = str_replace('/projects/', ',', str_replace('/users/', '', $folder['body']['uri']));
-            
             list($useridvimeo, $folderid) = explode(',', $urifolder);
-            /*
-            if ($foldervimeoarray) {
-                
-                $foldervimeo = new \stdClass();
-                $foldervimeo->userid = $userid;
-                $foldervimeo->clientid = $config->config_clientid;
-                $foldervimeo->foldername = $foldervimeoarray['foldername'];
-                $foldervimeo->folderid = $foldervimeoarray['folderid'];
-                $foldervimeo->timecreatedvimeo = $foldervimeoarray['timecreatedvimeo'];
-                $foldervimeo->timecreated = time();
-                
-                $moodlefolderid = $DB->insert_record('block_uploadvimeo_folders', $foldervimeo);
-                
-                return $DB->get_record('block_uploadvimeo_folders', array('id' => $moodlefolderid), '*', IGNORE_MISSING);
-                
-            }*/
-            return array('id'=>$folderid);
             
+            $foldervimeo = new \stdClass();
+            $foldervimeo->userid = $userid;
+            $foldervimeo->clientid = $config->config_clientid;
+            $foldervimeo->foldername = $folder['name'];
+            $foldervimeo->folderid = $folderid;
+            $foldervimeo->timecreatedvimeo = strtotime($folder['created_time']); // Ex.: [created_time] => 2020-09-29T14:15:37+00:00
+            $foldervimeo->timecreated = time();
+            
+            $moodlefolderid = $DB->insert_record('block_uploadvimeo_folders', $foldervimeo);
+            
+            return $DB->get_record('block_uploadvimeo_folders', array('id' => $moodlefolderid), '*', MUST_EXIST);
+           
         } else {
             return false;
         }
@@ -473,7 +478,7 @@ class uploadvimeo {
         $folderspage = $client->request('/me/projects/'.$folderid.'/videos', array(
             'per_page' => $perpage,
             'page' => $page,
-            'sort' => 'alphabetical', // Options: alphabetical, date, default, duration, last_user_action_event_date
+            'sort' => 'date', // Options: alphabetical, date, default, duration, last_user_action_event_date
             'direction' => 'desc',
         ), 'GET');
         
@@ -553,26 +558,37 @@ class uploadvimeo {
         
         while( $iterator->valid() ) {
             
-            if( ( ( isset($index) and ($iterator->key() == $index) ) or
+            if( ( (isset($index) and ($iterator->key() == $index) ) or
                 ( !isset($index) ) ) and ($iterator->current() == $needle) ) {
                     
                     return $arrayIterator -> key();
                 }
                 
-                $iterator -> next();
+                $iterator->next();
         }
         
         return -1;
     }
     
+    /**
+     * Recursive function that search folder in vimeo, run to all pages
+     * 
+     * @param Vimeo $client 
+     * @param string $foldername
+     * @param int $page
+     * @param int $per_page
+     * @return boolean|array array of folder found in vimeo or false if not
+     */
     static protected function search_folder_vimeo ($client, $foldername, $page, $per_page = FOLDERS_PER_PAGE) {
         
         $param = array('direction' => 'asc', 'sort' => 'name', 'per_page' => $per_page, 'page' => $page);
         
-        $result = $client->request('/me/projects', $param, 'GET');
+        $result = $client->request('/me/projects', $param, 'GET');        
         
         if ($result['body']['total'] <> '0') {
+            
             $totalpages = ($result['body']['total'] > $per_page )? ceil($result['body']['total'] / $per_page): 1;
+            $folder = false;
             
             // Get folders from the page.
             foreach ($result['body']['data'] as $folderpage) {
@@ -580,22 +596,23 @@ class uploadvimeo {
                 $urifolder = str_replace('/projects/', ',', str_replace('/users/', '', $folderpage['uri']));
                 list($useridvimeo, $folderid) = explode(',', $urifolder);
                 
-                $folders[] = array(
-                    'folderid' => $folderid,
-                    'foldername' => $folderpage['name'],
-                    'timecreatedvimeo' => $folderpage['created_time'],
-                );
+                if (strcasecmp($folderpage['name'], $foldername) == 0) {
+                    $folder = array('folderid' => $folderid,
+                        'foldername' => $folderpage['name'],
+                        'timecreatedvimeo' => $folderpage['created_time'],
+                    );
+                    break;
+                }                
             }
-            $folderfinded = array_search($foldername, array_column($folders, $foldername));
             
-            if (!$folderfinded) {
-                if ($page = $totalpages) {
+            if (!$folder) {
+                if ($page == $totalpages) {
                     return false;
                 } elseif ($page < $totalpages) {
-                    search_folder_vimeo($client, $foldername, $page+1, $per_page);
+                    return self::search_folder_vimeo($client, $foldername, $page+1);
                 }
             } else {
-                return $folders[$folderfinded];
+                return $folder;
             }
         }
     }

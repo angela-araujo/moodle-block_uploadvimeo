@@ -47,25 +47,15 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
      * @param int $userid The user logged
      * @param object $config Settings block upload vimeo
      */
-    public function display_page_videos(int $courseid, int $userid, $config, $page) {
+    public function display_page_videos(int $courseid, int $userid, $config) {
         
         global $DB;
         
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $username = $user->username;
-        $usernamefolder = 'MoodleUpload_' . $username;
+        /*$usernamefolder = 'MoodleUpload_' . $username;*/
         
-        $folder = uploadvimeo::get_folder($usernamefolder);
-        
-        
-        $params['courseid'] = $courseid;
-        $params['userid'] = $userid;
-        if ($page > 0) {
-            $params['page'] = $page;
-        }
-        else {
-            $page = 1;
-        }
+        $folder = uploadvimeo::get_folder($userid);
         
         $textmyvideos = get_string('text_line1', 'block_uploadvimeo');
         
@@ -74,8 +64,7 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         // Get all the videos in a folder.
         if ($folder) {
             
-            //$videos = uploadvimeo::get_videos_from_folder($folder['id']);
-            $videos = uploadvimeo::get_videos_from_folder_pagination($folder['id'], $page, 4);
+            $videos = uploadvimeo::get_videos_from_folder($folder->folderid);
             
             if ($videos) {
                 
@@ -92,27 +81,19 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
             
         }
         
-        $url = new moodle_url('/blocks/uploadvimeo/form.php', $params);
-        
         $data = new stdClass();
         $data->heading = get_string('pluginname', 'block_uploadvimeo');
-        $data->url = $url;
-        $data->myvideos = $videos['videos'];
+        $data->url = new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid, 'userid' => $userid]);
+        $data->myvideos = $videos;
         $data->textmyvideos = $textmyvideos;
         $data->accesstoken = $config->config_accesstoken;
         $data->urldeletevideo = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'deletevideoid' => '']);
         $data->urleditthumbnail = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'videoid' => '']);
         $data->username = $username;
         
-        $totalcount = $videos['totalvideos'];
-        
         // Start output to browser.
         echo $this->output->header();
-        $pagingbar = new paging_bar(27, $page, 4, $url);
-        echo '<br><br><br><pre>'; print_r($pagingbar); echo '</pre>';
-        echo $this->output->render($pagingbar);
         echo $this->render_from_template('block_uploadvimeo/form', $data);
-        echo $this->output->render($pagingbar);
         echo $this->output->footer();
         
     }

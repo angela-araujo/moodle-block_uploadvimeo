@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/uploadvimeo/db" VERSION="20200929" COMMENT="XMLDB file for Moodle blocks/uploadvimeo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="block_uploadvimeo_folders" COMMENT="Folder (project) for user in vimeo">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="clientid" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Client ID vimeo"/>
+        <FIELD NAME="foldername" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Folder name in vimeo"/>
+        <FIELD NAME="folderid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Folder id in vimeo"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreatedvimeo" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="vimeo" TYPE="primary" FIELDS="clientid, userid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="foldername" UNIQUE="false" FIELDS="foldername"/>
+        <INDEX NAME="foldernameunique" UNIQUE="false" FIELDS="clientid,foldername"/>
+      </INDEXES>
+      
+    </TABLE>
+  </TABLES>
+</XMLDB>

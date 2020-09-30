@@ -53,7 +53,6 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $username = $user->username;
-        /*$usernamefolder = 'MoodleUpload_' . $username;*/
         
         $folder = uploadvimeo::get_folder($userid);
        
@@ -64,9 +63,8 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         // Get all the videos in a folder.
         if ($folder) {
             
-            //$videos = uploadvimeo::get_videos_from_folder($folder['id']);
-            $videos = uploadvimeo::get_videos_from_folder_pagination($folder->folderid, $page + 1, 10);
-
+            $videos = uploadvimeo::get_videos_from_folder_pagination($folder->folderid, $page + 1);
+            
             if ($videos) {
                 
                 $textmyvideos .= '<br><br>' . get_string('text_line2_with_video', 'block_uploadvimeo') . '<br><br>';
@@ -92,7 +90,7 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $data->navigationbar = $this->output->render($pagingbar);
         $data->heading = get_string('pluginname', 'block_uploadvimeo');
         $data->url = new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid, 'userid' => $userid]);
-        $data->myvideos = $videos;
+        $data->myvideos = $videos['videos'];
         $data->textmyvideos = $textmyvideos;
         $data->accesstoken = $config->config_accesstoken;
         $data->urldeletevideo = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'deletevideoid' => '']);

@@ -438,7 +438,7 @@ class uploadvimeo {
      * @param int $perpage
      * @return array [totalvideos => , myvideos => [] ]
      */
-    static public function get_videos_from_folder_pagination($folderid, $page = 1, $perpage = 20) {
+    static public function get_videos_from_folder_pagination($folderid, $page = 1, $perpage = VIDEOS_PER_PAGE) {
         global $OUTPUT;
         
         $config = get_config('block_uploadvimeo');

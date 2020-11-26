@@ -444,10 +444,6 @@ class uploadvimeo {
         $config = get_config('block_uploadvimeo');
         $client = new Vimeo($config->config_clientid, $config->config_clientsecret, $config->config_accesstoken);
         
-        // Only to get total videos. @todo: Melhorar rotina
-        $result = $client->request('/me/projects/'.$folderid.'/videos', array('per_page' => 100, 'page' => 1), 'GET');
-        $totalvideos = $result['body']['total'];
-        
         /**
          * per_page: The number of items to show on each page of results, up to a maximum of 100.
          * @see https://developer.vimeo.com/api/reference/folders#get_project_videos 
@@ -462,6 +458,8 @@ class uploadvimeo {
             'sort' => 'date', // Options: alphabetical, date, default, duration, last_user_action_event_date
             'direction' => 'desc',
         ), 'GET');
+        
+        $totalvideos = $folderspage['body']['total'];
         
         if ( (!$folderspage['body']['total']) or ($folderspage['body']['total'] = '0') ) {
             return array();

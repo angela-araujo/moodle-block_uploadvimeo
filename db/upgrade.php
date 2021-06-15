@@ -1,0 +1,213 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+function xmldb_block_uploadvimeo_upgrade($oldversion) {
+    
+    global $DB;
+    
+    $dbman = $DB->get_manager();
+    
+    $newversion = 2021061500;
+        
+    if ($oldversion < $newversion) {
+        
+        /**
+         * Step 1. Create table account vimeo.
+         */
+        
+        // Define new table to be created.
+        $table = new xmldb_table('block_uploadvimeo_account');
+        
+        // Define fields to be added to table block_uploadvimeo_account.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('clientid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'name');
+        $table->add_field('clientsecret', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'clientid');
+        $table->add_field('accesstoken', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'clientsecret');
+        $table->add_field('status', XMLDB_TYPE_CHAR, '1', null, XMLDB_NOTNULL, null, null, 'accesstoken');
+        
+        // Adding keys.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        
+        // Adding indexes.
+        $table->add_index('unique', XMLDB_INDEX_UNIQUE, ['name']);
+        
+        // Create in db if not exists.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        
+        /**
+         * Step 2. Insert data from config into table block_uploadvimeo_account.
+         */
+        // Get current config.
+        $config = get_config('block_uploadvimeo');
+        
+        $record = new stdClass();
+        $record->name = 'Main account Vimeo';
+        $record->clientid = $config->config_clientid;
+        $record->clientsecret = $config->config_clientsecret;
+        $record->accesstoken = $config->config_accesstoken;
+        $record->status = 1; // 0-Inactive; 1-Active
+        
+        $accountid = $DB->insert_record('block_uploadvimeo_account', $record);
+        
+        // Set new config.
+        set_config('accountvimeo', $accountid, 'block_uploadvimeo');
+        
+        // Insert others clientid
+        $sql = "SELECT DISTINCT f.clientid
+                  FROM {block_uploadvimeo_folders} f
+                 WHERE f.clientid <> :oldclientid ";
+        
+        $params = array('oldclientid' => $config->config_clientid);
+        
+        $list_account = array();
+        
+        $list_account[$record->clientid] = $accountid;
+        
+        if ($others_accounts = $DB->get_records_sql($sql, $params)) {            
+            
+            foreach ($others_accounts as $account) {
+                
+                $newobject = new stdClass();
+                $newobject->name = 'Other account ' . $account->clientid;
+                $newobject->clientid = $account->clientid;
+                $newobject->clientsecret = $account->clientid;
+                $newobject->accesstoken = $account->clientid;
+                $newobject->status = 0;
+                
+                $newobjectid = $DB->insert_record('block_uploadvimeo_account', $newobject);
+                $list_account[$newobject->clientid] = $newobjectid;
+            }
+        }
+        /**
+         * Step 3. Add new field accountid in table block_uploadvimeo_folders.
+         */
+
+        $table = new xmldb_table('block_uploadvimeo_folders');
+        $field = new xmldb_field('accountid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, -1, 'userid');
+        
+        // Conditionally launch add field accountid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        /**
+         * Step 4. Insert value in new field accountid from table block_uploadvimeo_folders.
+         */
+
+        $recordset = $DB->get_recordset('block_uploadvimeo_folders');
+        
+        foreach ($recordset as $folder) {
+            $newfolder = new stdClass();
+            $newfolder->id = $folder->id;
+            $newfolder->userid = $folder->userid;
+            $newfolder->accountid = $list_account[$folder->clientid];
+            $newfolder->foldername = $folder->foldername;
+            $newfolder->folderid = $folder->folderid;
+            $newfolder->timecreated = $folder->timecreated;
+            $newfolder->timecreatedvimeo = $folder->timecreatedvimeo;
+            $DB->update_record('block_uploadvimeo_folders', $newfolder);
+        }
+        $recordset->close();
+        
+        /**
+         * Step 5. Drop index 'foldernameunique' and 'vimeokey' from folders.
+         */
+
+        $index = new xmldb_index('foldernameunique');
+        
+        // Conditionally launch drop field clientid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+        
+        $index = new xmldb_index('vimeokey');
+        
+        // Conditionally launch drop field clientid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+        
+        /**
+         * Step 6. Re create index foldernameunique from folders.
+         */
+        
+        $index = new xmldb_index('uniquefolder', XMLDB_INDEX_UNIQUE, ['accountid', 'userid']);
+        
+        // Conditionally launch add index foldername.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        
+        
+        /**
+         * Step 7. Drop old field clientid from folders.
+         */
+
+        $field = new xmldb_field('clientid');
+        
+        // Conditionally launch drop field clientid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        
+        /**
+         * Step 8. Create new table block_upload_videos.
+         */
+
+        // Define table block_uploadvimeo_videos to be created.
+        $table = new xmldb_table('block_uploadvimeo_videos');
+        
+        // Adding fields to table block_uploadvimeo_videos.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('folderid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('videoid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('videoname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('linkvideo', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('linkpicture', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('duration', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+        $table->add_field('size_bytes', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+        $table->add_field('quality', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreatedvimeo', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        
+        // Adding keys to table block_uploadvimeo_videos.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        
+        // Adding indexes to table block_uploadvimeo_videos.
+        $table->add_index('unique', XMLDB_INDEX_UNIQUE, ['folderid', 'videoid']);
+        $table->add_index('videoname', XMLDB_INDEX_NOTUNIQUE, ['videoname']);
+        
+        // Conditionally launch create table for block_uploadvimeo_videos.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        
+        /**
+         * Step 9. Unset olds config from block_uploadvimeo.
+         */
+
+        unset_config('clientid', 'block_uploadvimeo');
+        unset_config('clientsecret', 'block_uploadvimeo');
+        unset_config('accesstoken', 'block_uploadvimeo');
+        
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, $newversion, 'uploadvimeo');
+    }
+}

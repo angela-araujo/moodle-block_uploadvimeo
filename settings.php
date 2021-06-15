@@ -58,9 +58,13 @@ if ($ADMIN->fulltree) {
     
     // Access.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingaccess', new lang_string('config_headingaccess', 'block_uploadvimeo'), ''));
+    $settings->add(new admin_setting_configtext('block_uploadvimeo/accountvimeo', new lang_string('accountvimeo', 'block_uploadvimeo'), new lang_string('accountvimeo_desc', 'block_uploadvimeo'), null, PARAM_INT, 10));
+    
+    /*
     $settings->add(new admin_setting_configtext('block_uploadvimeo/config_clientid', new lang_string('config_clientid', 'block_uploadvimeo'), new lang_string('config_clientid_desc', 'block_uploadvimeo'), null, PARAM_TEXT, 50));
     $settings->add(new admin_setting_configtext('block_uploadvimeo/config_clientsecret', new lang_string('config_clientsecret', 'block_uploadvimeo'), new lang_string('config_clientsecret_desc', 'block_uploadvimeo'), null, PARAM_TEXT, 100));
     $settings->add(new admin_setting_configtext('block_uploadvimeo/config_accesstoken',  new lang_string('config_accesstoken', 'block_uploadvimeo'), new lang_string('config_accesstoken_desc', 'block_uploadvimeo'), null, PARAM_TEXT, 50));
+    */
     
     // Embed.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingembed', new lang_string('config_headingembed', 'block_uploadvimeo'), ''));

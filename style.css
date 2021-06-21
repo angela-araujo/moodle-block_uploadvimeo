@@ -12,6 +12,10 @@
 	height: 40px;
 }
 
+.block-uploadvimeo td img {
+    height: 40px;
+}
+
 .block-uploadvimeo .codeembed {
     overflow: hidden;
     border: 1px solid rgba(0,0,0,.125);

@@ -22,12 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**
- * Modified for use in MoodleBites for Developers Level 1
- * by Richard Jones & Justin Hunt.
- *
- * See: https://www.moodlebites.com/mod/page/view.php?id=24546
- */
 defined ( 'MOODLE_INTERNAL' ) || die ();
 
 $capabilities = array (
@@ -50,7 +44,6 @@ $capabilities = array (
         // Specified user can add to courses etc.
         'block/uploadvimeo:addinstance' => array (
                 'riskbitmask' => RISK_SPAM | RISK_XSS,
-
                 'captype' => 'write',
                 'contextlevel' => CONTEXT_BLOCK,
                 'archetypes' => array (

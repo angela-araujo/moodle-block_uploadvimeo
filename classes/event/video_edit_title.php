@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 class video_edit_title extends \core\event\base {
     
     protected function init() {
+        $this->data['objecttable'] = 'block_uploadvimeo_videos';
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
@@ -42,6 +43,7 @@ class video_edit_title extends \core\event\base {
     public function get_description() {
         return "The user with id '$this->userid' has
                 edited the title video with the id '{$this->other['videoid']}'
-                in the block Upload Vimeo";
+                in the block Upload Vimeo with course
+                id '{$this->courseid}'.";
     }
 }

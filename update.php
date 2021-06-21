@@ -26,7 +26,7 @@ if ($urivideo) {
     
 } else if ($deletevideoid) {
     
-    uploadvimeo::video_delete($courseid, $deletevideoid);  
+    uploadvimeo::vimeo_delete_video($courseid, $deletevideoid);  
     redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
     
 } else if (($newthumbnail) and ($videoid)){
@@ -40,15 +40,19 @@ if ($urivideo) {
         $response['message'] = 'Arquivo não enconrado';
         $response['urlnewthumbnail'] = $newthumbnail;
     } else {    
-        $urinewthumnail = uploadvimeo::edit_thumbnail($videoid, $newthumbnail);
-        delete_file_temp($newthumbnail);    
-        $response['urlnewthumbnail'] = $urinewthumnail;
+        if ($urinewthumnail = uploadvimeo::vimeo_edit_thumbnail($videoid, $newthumbnail)){
+            delete_file_temp($newthumbnail);    
+            $response['urlnewthumbnail'] = $urinewthumnail;
+        } else {
+            $response['status'] = 1;
+            $response['message'] = 'Não foi possível atualizar a imagem do vídeo. Tente novamente mais tarde.';
+            $response['urlnewthumbnail'] = $newthumbnail;
+        }
     }
     
-    //echo json_encode($response);
-    
+    //echo json_encode($response);    
 
-    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
+    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]), $response['message']);
 
 }
 

@@ -26,6 +26,14 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
     
+    global $DB;
+    if ($accounts = $DB->get_records('block_uploadvimeo_account', ['status' => 1])) {
+        $choice_account = array();
+        foreach ($accounts as $account) {
+            $choice_account[$account->id] = $account->name;
+        }
+    }
+    
     // Setting option variables.
     $yesno = array(
             new lang_string('no'),
@@ -58,13 +66,14 @@ if ($ADMIN->fulltree) {
     
     // Access.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingaccess', new lang_string('config_headingaccess', 'block_uploadvimeo'), ''));
-    $settings->add(new admin_setting_configtext('block_uploadvimeo/accountvimeo', new lang_string('accountvimeo', 'block_uploadvimeo'), new lang_string('accountvimeo_desc', 'block_uploadvimeo'), null, PARAM_INT, 10));
     
-    /*
-    $settings->add(new admin_setting_configtext('block_uploadvimeo/config_clientid', new lang_string('config_clientid', 'block_uploadvimeo'), new lang_string('config_clientid_desc', 'block_uploadvimeo'), null, PARAM_TEXT, 50));
-    $settings->add(new admin_setting_configtext('block_uploadvimeo/config_clientsecret', new lang_string('config_clientsecret', 'block_uploadvimeo'), new lang_string('config_clientsecret_desc', 'block_uploadvimeo'), null, PARAM_TEXT, 100));
-    $settings->add(new admin_setting_configtext('block_uploadvimeo/config_accesstoken',  new lang_string('config_accesstoken', 'block_uploadvimeo'), new lang_string('config_accesstoken_desc', 'block_uploadvimeo'), null, PARAM_TEXT, 50));
-    */
+    $name = 'block_uploadvimeo/accountvimeo';
+    $visiblename = new lang_string('accountvimeo', 'block_uploadvimeo');
+    $description = new lang_string('accountvimeo_desc', 'block_uploadvimeo');
+    $default = 0;
+    $setting = new admin_setting_configselect($name, $visiblename, $description, $default, $choice_account);
+    $settings->add($setting);
+    
     
     // Embed.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingembed', new lang_string('config_headingembed', 'block_uploadvimeo'), ''));

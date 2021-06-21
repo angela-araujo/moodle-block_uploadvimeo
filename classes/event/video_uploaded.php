@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 class video_uploaded extends \core\event\base {
     
     protected function init() {
-        $this->data['objecttable'] = 'course';
+        $this->data['objecttable'] = 'block_uploadvimeo_videos';
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }

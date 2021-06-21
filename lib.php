@@ -31,7 +31,7 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
         
         // Must call validate_context for either system, or course or course module context.
         // This will both check access and set current context.
-        \external_api::validate_context(context_system::instance());        
+        \external_api::validate_context(context_system::instance());
         
         // Check permission of the user to update this item.
         //require_capability('block/uploadvimeo:seepagevideos', context_system::instance());
@@ -41,14 +41,16 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
         // Clean input and update the record.
         $newvalue = clean_param($newvalue, PARAM_NOTAGS);
 
-        $response = uploadvimeo::edit_title($itemid, $newvalue);
+        $response = uploadvimeo::vimeo_edit_title($itemid, $newvalue);
 
         $shortenedvalue = uploadvimeo::get_short_title($newvalue, 50);
         
-        if ($response) {            
+        $video = uploadvimeo::get_a_specific_video($itemid);
+        
+        if ($response) {
             
             $displayvalue = '<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_'.$itemid.'" data-target="#videoid_'.$itemid.'">';
-            $displayvalue .= '<img src="'.$response.'" class="rounded" name="thumbnail_'.$itemid.'" id="thumbnail_'.$itemid.'">';
+            $displayvalue .= '<img src="'.$video->linkpicture.'" class="rounded" name="thumbnail_'.$itemid.'" id="thumbnail_'.$itemid.'">';
             $displayvalue .= '<span style="margin-left:10px; margin-right:20px;">'.$shortenedvalue.'</span></a>';
             
             // Prepare the element for the output:
@@ -57,4 +59,9 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
                     get_string('edittitlevideo', 'block_uploadvimeo'));
         }
     }
+}
+function block_uploadvimeo_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $uploadvimeonode=null) {
+    global $PAGE;
+    $url = new moodle_url('/blocks/uploadvimeo/account.php',);
+    $uploadvimeonode->add('Account configuration', $url);
 }

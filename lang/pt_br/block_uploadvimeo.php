@@ -30,12 +30,8 @@ $string['textblock'] = 'Para enviar e gerenciar seus vídeos, clique abaixo.';
 
 // Settings - Access.
 $string['config_headingaccess'] = 'Acesso Vimeo';
-$string['config_clientid'] = 'Client ID';
-$string['config_clientid_desc'] = '<b>Client ID</b> para a conta do Vimeo';
-$string['config_clientsecret'] = 'Client Secret';
-$string['config_clientsecret_desc'] = '<b>Client Secret</b> para a conta do Vimeo';
-$string['config_accesstoken'] = 'Access Token';
-$string['config_accesstoken_desc'] = '<b>Access Token</b> para a conta do Vimeo';
+$string['accountvimeo'] = 'Conta Vimeo para upload';
+$string['accountvimeo_desc'] = 'Conta padrão do Vimeo usada para fazer upload dos vídeos';
 
 // List options for settings.
 $string['hide'] = 'Ocultar';

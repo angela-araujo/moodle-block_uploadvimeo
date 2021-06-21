@@ -32,18 +32,7 @@
         "heading": "My videos",
         "url": "/blocks/uploadvimeo/form.php",
         "myvideos": [			
-			{
-				"name": "Video 01", "linkvideo": "https://link01", "videoid": "44444", 
-				"htmlembed": "<iframe></iframe>", "thumbnail": "https://link",
-				"type": "text", "component": "block_uploadvimeo", "itemtype": "title", 
-				"itemid": "44444", "value": "Video 01", "editlabel": "Video 01"
-			},
-			{
-				"name": "Video 02", "linkvideo": "https://link02", "videoid": "55555", 
-				"htmlembed": "<iframe></iframe>", "thumbnail": "https://link",
-				"type": "text", "component": "block_uploadvimeo", "itemtype": "title", 
-				"itemid": "55555", "value": "Video 02", "editlabel": "Video 02"
-			},
+			
 		],
         "textmyvideos": "Text",
         "accesstoken": "0000000x00x0x0x",
@@ -54,16 +43,10 @@
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<!--
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
--->
     <script src="https://cdn.jsdelivr.net/npm/tus-js-client@1.8.0/dist/tus.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
     <script src="js/util.js?121213141415"></script>
-<!--
-    <script src="js/config.js?121213141415"></script>    
--->	
     <script src="js/vimeo-api.js?121213141415"></script>
     <script src="js/app.js?121213141415"></script>        
 
@@ -148,17 +131,18 @@
 			<br><br>
 			<h5>{{{ textmyvideos }}}</h5>
 			{{{ navigationbar }}}
-			<ul>
+			<table class="flexible table table-striped table-hover generaltable generalbox" id="videosvimeo">
 				{{# myvideos }}
-				<li>
+				
+				<tr>
+					<td>
+					<span>{{ order }}. </span>
 					<span class="videoinplace">
 						<!-- inplace editable -->
 						{{{ titleinplace }}}
 					</span>
 					<span class="menuvideo">
 						<a data-toggle="collapse" aria-expanded="false" aria-controls="videoid_{{ videoid }}" data-target="#videoid_{{ videoid }}" title="{{#str}} showcodeembed, block_uploadvimeo {{/str}}">
-							<!-- <img src="{{ thumbnail }}" class="rounded" name="thumbnail_{{ videoid }}" id="thumbnail_{{ videoid }}" >
-							<span style="margin-left:10px; margin-right:20px;">{{ name }}</span> -->
 							<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
 						</a>
 						
@@ -173,8 +157,7 @@
 							<span style="margin-right:-5px;"><i class="icon fa fa-trash fa-fw " style="color:gray"></i></span>
 						</a>					
 					</span>				
-				
-				</li>
+					
 				
 				<!-- Collapse (code) -->
 				<div class="collapse" id="videoid_{{ videoid }}">
@@ -186,7 +169,7 @@
 
 						<div class="tab-content">
 							<div id="atalhotab_{{ videoid }}" class="tab-pane fade in active codeembed rounded" style="">
-								<p id="atalho_{{ videoid }}">[vimeo video="{{ videoid }}"]</p>
+								<p id="atalho_{{ videoid }}">[vimeo video="{{ videoidvimeo }}"]</p>
 								<button id="atalhobtn_{{ videoid }}" type="button" class="btn btn-secondary btn-sm">{{#str}} btncopy, block_uploadvimeo {{/str}} <i class="icon fa fa-copy fa-2x" style="color:gray"></i></button>
 							</div>
 							<div id="codigotab_{{ videoid }}" class="tab-pane fade codeembed rounded">
@@ -304,7 +287,10 @@
 				</script>
 
 				{{/ myvideos }}
-			</ul>
+				</td>
+				</tr>
+				</table>
+			
 			{{{ navigationbar }}}
 		</div>
 	</div><!-- end card my videos -->

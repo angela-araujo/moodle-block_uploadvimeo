@@ -37,7 +37,8 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         $table->add_field('clientid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'name');
         $table->add_field('clientsecret', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'clientid');
         $table->add_field('accesstoken', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'clientsecret');
-        $table->add_field('status', XMLDB_TYPE_CHAR, '1', null, XMLDB_NOTNULL, null, null, 'accesstoken');
+        $table->add_field('app_id', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, '-1', 'accesstoken');
+        $table->add_field('status', XMLDB_TYPE_CHAR, '1', null, XMLDB_NOTNULL, null, null, 'app_id');
         
         // Adding keys.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
@@ -94,6 +95,7 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
                 $list_account[$newobject->clientid] = $newobjectid;
             }
         }
+        
         /**
          * Step 3. Add new field accountid in table block_uploadvimeo_folders.
          */
@@ -107,6 +109,33 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         }
         
         /**
+         * 
+         */
+        $index = new xmldb_index('foldername', XMLDB_INDEX_NOTUNIQUE, ['foldername']);
+        // Conditionally launch drop field clientid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+        
+        // Rename field foldername on table block_uploadvimeo_folders to foldernamevimeo.
+        $field = new xmldb_field('foldername', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'accountid');
+        
+        // Launch rename field foldernamevimeo.
+        $dbman->rename_field($table, $field, 'foldernamevimeo');
+        
+        $index = new xmldb_index('foldernamevimeo', XMLDB_INDEX_NOTUNIQUE, ['foldernamevimeo']);
+        // Conditionally launch drop field clientid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        
+        // Rename field foldername on table block_uploadvimeo_folders to foldernamevimeo.
+        $field = new xmldb_field('folderid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'foldernamevimeo');
+        
+        // Launch rename field foldernamevimeo.
+        $dbman->rename_field($table, $field, 'folderidvimeo');
+        
+        /**
          * Step 4. Insert value in new field accountid from table block_uploadvimeo_folders.
          */
 
@@ -117,7 +146,7 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
             $newfolder->id = $folder->id;
             $newfolder->userid = $folder->userid;
             $newfolder->accountid = $list_account[$folder->clientid];
-            $newfolder->foldername = $folder->foldername;
+            $newfolder->foldernamevimeo = $folder->foldernamevimeo;
             $newfolder->folderid = $folder->folderid;
             $newfolder->timecreated = $folder->timecreated;
             $newfolder->timecreatedvimeo = $folder->timecreatedvimeo;
@@ -175,9 +204,10 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         
         // Adding fields to table block_uploadvimeo_videos.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('folderid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('videoid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('videoname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('accountid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, -1);
+        $table->add_field('folderid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, -1);
+        $table->add_field('videoidvimeo', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('videonamevimeo', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('linkvideo', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('linkpicture', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('duration', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
@@ -191,8 +221,8 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
         
         // Adding indexes to table block_uploadvimeo_videos.
-        $table->add_index('unique', XMLDB_INDEX_UNIQUE, ['folderid', 'videoid']);
-        $table->add_index('videoname', XMLDB_INDEX_NOTUNIQUE, ['videoname']);
+        $table->add_index('unique', XMLDB_INDEX_UNIQUE, ['accountid', 'videoidvimeo']);
+        $table->add_index('videonamevimeo', XMLDB_INDEX_NOTUNIQUE, ['videonamevimeo']);
         
         // Conditionally launch create table for block_uploadvimeo_videos.
         if (!$dbman->table_exists($table)) {
@@ -210,4 +240,10 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         // Uploadvimeo savepoint reached.
         upgrade_block_savepoint(true, $newversion, 'uploadvimeo');
     }
+    
+    if ($oldversion < 2021061800) {
+        
+    }
+    
+    return true;
 }

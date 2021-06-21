@@ -65,3 +65,8 @@ function block_uploadvimeo_extend_settings_navigation(settings_navigation $setti
     $url = new moodle_url('/blocks/uploadvimeo/account.php',);
     $uploadvimeonode->add('Account configuration', $url);
 }
+
+function update_images() {
+    
+}
+

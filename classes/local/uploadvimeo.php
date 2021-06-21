@@ -91,9 +91,20 @@ class uploadvimeo {
             return false;
         }
         
+        
         $videouploadcomplete->id = $videoid;
         $videouploadcomplete->folderid = $folder->id;
         $videouploadcomplete->timemodified = time();
+        
+        /*
+        $dataobject = new \stdClass();
+        $dataobject->id = $videoid;
+        $dataobject->folderid = $folder->id;
+        $dataobject->linkpicture = $videouploadcomplete->linkpicture;
+        $dataobject->duration = $videouploadcomplete->duration;
+        $dataobject->size_bytes = $videouploadcomplete->size_bytes;
+        $dataobject->quality = $videouploadcomplete->quality;        
+        $dataobject->timemodified = time();*/
         
         $DB->update_record('block_uploadvimeo_videos', $videouploadcomplete);
 
@@ -164,6 +175,19 @@ class uploadvimeo {
         
         return $DB->get_record('block_uploadvimeo_folders', $params);
     }
+    
+    
+    static public function get_folder_by_name($foldername) {
+        
+        global $DB;
+        $config = get_config('block_uploadvimeo');
+        $params = array(
+            'foldername' => $foldername,
+            'accountid' => $config->accountvimeo);
+        
+        return $DB->get_record('block_uploadvimeo_folders', $params);
+    }
+    
     
     /**
      * USE CAREFULLY!! 
@@ -489,7 +513,9 @@ class uploadvimeo {
         end($quality_size);
         
         $videouploaded = new \stdClass();
+        $videouploaded->id               = -1;
         $videouploaded->accountid        = $account->id;
+        $videouploaded->forderid         = -1;
         $videouploaded->videoidvimeo     = $videoidvimeo;
         $videouploaded->videonamevimeo   = $video['body']['name'];
         $videouploaded->linkvideo        = $video['body']['link'];
@@ -498,6 +524,7 @@ class uploadvimeo {
         $videouploaded->size_bytes       = key($quality_size);
         $videouploaded->quality          = $quality_size[key($quality_size)];
         $videouploaded->timecreatedvimeo = strtotime($video['body']['created_time']);
+        $videouploaded->timemodified     = time();
 
         return $videouploaded;
     }
@@ -826,6 +853,53 @@ class uploadvimeo {
         debugging(date("Y-m-d H:i:s"). " Inserting new video uploaded into db (accountid: {$record->accountid}, videoidvimeo: {$record->videoidvimeo}... ", NO_DEBUG_DISPLAY);
         return $DB->insert_record('block_uploadvimeo_videos', $record);
         
+    }
+    
+    static public function update_images_from_vimeo () {
+        global $DB;
+        
+        $params = array('quality' => 'Original');
+        
+        if ($videos_without_images = $DB->get_records('block_uploadvimeo_videos', $params)){
+        
+            foreach ($videos_without_images as $video_to_update) {
+                $account = $DB->get_record('block_uploadvimeo_account', ['id' => $video_to_update->accountid]);
+                $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
+                
+                $videovimeo = $client->request('/videos/'.$video_to_update->videoidvimeo, array(), 'GET');
+                
+                if ($videovimeo['status'] != '200') { // OK
+                    continue;
+                }
+                
+                if ($videovimeo['body']['transcode']['status'] != 'complete') {
+                    continue;
+                }
+                
+                $quality_size = array();
+                foreach ($videovimeo['body']['download'] as $value) {
+                    $quality_size[$value['size']] = $value['public_name'];
+                }
+                ksort($quality_size, SORT_NUMERIC);
+                end($quality_size);
+                
+                $videouploaded = new \stdClass();
+                $videouploaded->id               = $video_to_update->id;
+                $videouploaded->accountid        = $video_to_update->accountid;
+                if (!$video_to_update->folderid) {
+                    $folder = self::get_folder_by_name($videovimeo['parent_folder']['name']);
+                    $videouploaded->forderid       = $folder->id;
+                }                
+                $videouploaded->linkpicture      = $videovimeo['body']['pictures']['sizes'][0]['link'];
+                $videouploaded->duration         = $videovimeo['body']['duration'];
+                $videouploaded->size_bytes       = key($quality_size);
+                $videouploaded->quality          = $quality_size[key($quality_size)];
+                $videouploaded->timecreatedvimeo = strtotime($videovimeo['body']['created_time']);
+                $videouploaded->timemodified     = time();
+                
+                $DB->update_record('block_uploadvimeo_videos', $videouploaded);
+            }
+        }
     }
 
 

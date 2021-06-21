@@ -146,10 +146,14 @@
 							<span style="margin-right:-5px;"><i class="icon fa fa-file-code-o fa-fw " style="color:gray"></i></span>
 						</a>
 						
-						<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
+ 						<a data-toggle="modal" data-target="#play_{{ videoid }}" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
 							<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
 						</a>
-						
+						<!-- 
+						<a href="https://localhost/moodle/blocks/uploadvimeo/modal.php?courseid=4&play={{ videoid }}&a=play" title="{{#str}} playvideo, block_uploadvimeo {{/str}}">
+							<span style="margin-right:-5px;"><i class="icon fa fa-play-circle fa-fw " style="color:gray"></i></span>
+						</a>
+						-->
 						<a data-toggle="modal" data-target="#image_{{ videoid }}" title="Alterar imagem do vídeo">
 							<span style="margin-right:-5px;"><i class="icon fa fa-picture-o fa-fw " style="color:gray"></i></span>
 						</a>
@@ -187,28 +191,8 @@
 						copyTextToClipboard('{{{ htmlembed }}}');
 					});
 				</script>
-								
-				<!-- Modal (play) -->
-				<div class="modal fade" id="play_{{ videoid }}" tabindex="-1" role="dialog">
-					<div class="modal-dialog modal-dialog-centered" role="document">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5>{{ name }}</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" id="close_play_{{ videoid }}">
-								  <span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="modal-body">
-								{{{ htmlembed }}}
-							</div>
-						</div>
-					</div>
-				</div>
-				<script>
-					$( document ).on("mouseleave", "#play_{{ videoid }}", function (e) {
-						$("#play_{{ videoid }} iframe").attr("src", $("#play_{{ videoid }} iframe").attr("src"));
-					});				
-				</script>
+				
+				{{> block_uploadvimeo/modal_play}}				
 				
 				<!-- Modal (thumbnail) -->
 				<div class="modal fade" id="image_{{ videoid }}" tabindex="-1" role="dialog">

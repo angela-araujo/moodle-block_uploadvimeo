@@ -1,0 +1,12 @@
+{
+	"name" : "moodle_puc-rio/uploadvimeo",
+	"type" : "project",
+	"authors" : [{
+			"name" : "Angela de Araujo",
+			"email" : "angela.araujo.rj@gmail.com"
+		}
+	],
+	"require": {
+		"vimeo/vimeo-api": "^3.0"
+	}
+}

@@ -111,6 +111,12 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         /**
          * 
          */
+        $index = new xmldb_index('mdl_blocuplofold_cliuse_uix', XMLDB_INDEX_UNIQUE, ['clientid', 'userid']);
+        // Conditionally launch drop field clientid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+        
         $index = new xmldb_index('foldername', XMLDB_INDEX_NOTUNIQUE, ['foldername']);
         // Conditionally launch drop field clientid.
         if ($dbman->index_exists($table, $index)) {

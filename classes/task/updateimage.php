@@ -26,6 +26,8 @@ namespace block_uploadvimeo\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_uploadvimeo\local\uploadvimeo;
+
 class updateimage extends \core\task\scheduled_task {
     
     public function get_name() {
@@ -33,7 +35,8 @@ class updateimage extends \core\task\scheduled_task {
     }
 
     public function execute() {
-        
+        $trace = new \text_progress_trace();
+        uploadvimeo::update_images_from_vimeo($trace);
     }
 
     

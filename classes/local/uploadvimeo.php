@@ -769,7 +769,7 @@ class uploadvimeo {
         
         debugging(date("Y-m-d H:i:s"). " Get all folders to fetch videos... ", NO_DEBUG_DISPLAY);
         
-        $conditions = array('foldernamevimeo' => 'MoodleUpload_renato');
+        $conditions = [];//array('foldernamevimeo' => 'MoodleUpload_f21426');
         
         // Select all users in folder's table.
         if ( $folders = $DB->get_records('block_uploadvimeo_folders', $conditions) ) {
@@ -855,13 +855,15 @@ class uploadvimeo {
         
     }
     
-    static public function update_images_from_vimeo () {
+    static public function update_images_from_vimeo (\progress_trace $trace) {
         global $DB;
         
         $params = array('quality' => 'Original');
         
         if ($videos_without_images = $DB->get_records('block_uploadvimeo_videos', $params)){
         
+            $trace->output(date("Y-m-d H:i:s") . " Start update image s link for " . count($videos_without_images) . " videos...");
+            
             foreach ($videos_without_images as $video_to_update) {
                 $account = $DB->get_record('block_uploadvimeo_account', ['id' => $video_to_update->accountid]);
                 $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
@@ -869,10 +871,12 @@ class uploadvimeo {
                 $videovimeo = $client->request('/videos/'.$video_to_update->videoidvimeo, array(), 'GET');
                 
                 if ($videovimeo['status'] != '200') { // OK
+                    $trace->output(date("Y-m-d H:i:s") . " -> Do not update videoid:{$video_to_update->id} link:{$video_to_update->link} return status {$videovimeo['status']} from vimeo");
                     continue;
                 }
                 
                 if ($videovimeo['body']['transcode']['status'] != 'complete') {
+                    $trace->output(date("Y-m-d H:i:s") . " -> Do not update videoid:{$video_to_update->id} link:{$video_to_update->link} return status transcode {$videovimeo['body']['transcode']['status']} from vimeo");
                     continue;
                 }
                 
@@ -898,6 +902,7 @@ class uploadvimeo {
                 $videouploaded->timemodified     = time();
                 
                 $DB->update_record('block_uploadvimeo_videos', $videouploaded);
+                $trace->output(date("Y-m-d H:i:s") . " -> Video updated success videoid:{$video_to_update->id} link:{$video_to_update->link}");
             }
         }
     }

@@ -74,7 +74,7 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configselect($name, $visiblename, $description, $default, $choice_account);
     $settings->add($setting);
     
-    
+    /*
     // Embed.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingembed', new lang_string('config_headingembed', 'block_uploadvimeo'), ''));
     $settings->add(new admin_setting_configselect('block_uploadvimeo/config_embedbuttonsembed', new lang_string('config_embedbuttonsembed', 'block_uploadvimeo'), new lang_string('config_embedbuttonsembed_desc', 'block_uploadvimeo'), 0, $yesno));
@@ -102,5 +102,5 @@ if ($ADMIN->fulltree) {
     // Settings - Restrictions.
     $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingrestriction', new lang_string('config_headingrestriction', 'block_uploadvimeo'), ''));
     $settings->add(new admin_setting_configtext('block_uploadvimeo/config_whitelist', new lang_string('config_whitelist', 'block_uploadvimeo'), null, '', PARAM_TEXT, 50));
-    
+    */
 }

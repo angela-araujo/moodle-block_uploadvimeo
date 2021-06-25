@@ -152,3 +152,6 @@ $string['msg_error_not_move_video_folder'] = 'Não foi possível mover o vídeo 
 // Tasks.
 $string['updateimagetask'] = 'Atualizar imagens dos vídeos';
 $string['sync'] = 'Carrega videos para o banco de dados';
+
+$string['inactive'] = 'Inativa';
+$string['active'] = 'Ativa';

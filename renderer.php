@@ -100,7 +100,7 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $table = new stdClass();
         
         // Table headers.
-        $table->tableheaders = ['id', 'name', 'clientid', 'clientsecret', 'accesstoken', 'app_id', 'status'];
+        $table->tableheaders = ['id', 'name', 'clientid', 'clientsecret', 'accesstoken', 'app_id', 'status', 'action'];
         
         // Build the data rows.
         foreach ($records as $record) {
@@ -112,6 +112,9 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
             $data[] = $record->accesstoken;
             $data[] = $record->app_id;
             $data[] = $record->status;
+            $editlink = html_writer::link(new moodle_url('/blocks/uploadvmeo/account.php', ['id' => $record->id]), 'edit');
+            $data[] = $editlink;
+            
             $table->tabledata[] = $data;
         }
         

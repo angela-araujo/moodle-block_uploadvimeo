@@ -61,12 +61,10 @@ function block_uploadvimeo_inplace_editable($itemtype, $itemid, $newvalue) {
     }
 }
 function block_uploadvimeo_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $uploadvimeonode=null) {
-    global $PAGE;
-    $url = new moodle_url('/blocks/uploadvimeo/account.php',);
+    global $PAGE, $COURSE;
+    $url = new moodle_url('/blocks/uploadvimeo/account.php', ['courseid' => $COURSE->id]);
     $uploadvimeonode->add('Account configuration', $url);
 }
 
-function update_images() {
-    
-}
+
 

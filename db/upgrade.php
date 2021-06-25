@@ -87,8 +87,8 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
                 $newobject = new stdClass();
                 $newobject->name = 'Other account ' . $account->clientid;
                 $newobject->clientid = $account->clientid;
-                $newobject->clientsecret = $account->clientid;
-                $newobject->accesstoken = $account->clientid;
+                $newobject->clientsecret = -1;
+                $newobject->accesstoken = -1;
                 $newobject->status = 0;
                 
                 $newobjectid = $DB->insert_record('block_uploadvimeo_account', $newobject);

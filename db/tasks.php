@@ -15,15 +15,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Task definition for block_uploadvimeo.
  *
- * @package    block_uploadvimeo
- * @copyright  2020 CCEAD PUC-Rio <angela@ccead.puc-rio.br>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_uploadvimeo
+ * @copyright 2020 CCEAD PUC-Rio
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_uploadvimeo'; // Full name of the plugin (used for diagnostics)
-$plugin->version   = 2021062401;       	// The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2010112400;       	// Requires this Moodle version: Moodle 2.0 - 24 November 2010 
+$tasks = array(
+    array(
+        'classname' => '\block_uploadvimeo\task\updateimage',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0
+    ),
+    array(
+        'classname' => '\block_uploadvimeo\task\sync',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0
+    )
+);

@@ -1,10 +1,34 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+
+/**
+ * Class UploadVimeo.
+ *
+ * @package   block_uploadvimeo
+ * @copyright 2020 CCEAD PUC-Rio (@angela-araujo)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace block_uploadvimeo\local;
 
 use Vimeo\Vimeo;
 use context_course;
 
+define('VIDEOS_PER_PAGE_TO_ADD_DB', 10);
 define('VIDEOS_PER_PAGE', 10);
 define('FOLDERS_PER_PAGE', 100);
 define('UPLOADVIMEO_ERROR', -1);
@@ -700,106 +724,140 @@ class uploadvimeo {
      * @param array $folders
      * @return \Generator
      */
-    static public function vimeo_get_all_videos_from_folder($folders) {
+    static public function vimeo_get_all_videos_from_folder(\progress_trace $trace, $folder, $page_required = 1) {
         
         global $DB;
         
-        foreach ($folders as $folder) {
+        $trace->output(" vimeo_get_all_videos_from_folder [accountid={$folder->accountid}, folderid={$folder->id}, foldervimeoid={$folder->folderidvimeo}]", 1);
+        
+        $params = array('id' => $folder->accountid, 'status' => '1');
+        
+        if ($account = $DB->get_record('block_uploadvimeo_account', $params) ) {
             
-            $listvideos = array();
+            $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
             
-            debugging(date("Y-m-d H:i:s"). " vimeo_get_all_videos_from_folder [accountid={$folder->accountid}, folderid={$folder->id}, foldervimeoid={$folder->folderidvimeo}], ", NO_DEBUG_DISPLAY);
+            $totalpage = $page_required;
             
-            $params = array('id' => $folder->accountid, 'status' => '1');
-            
-            if ($account = $DB->get_record('block_uploadvimeo_account', $params) ) {
+            for ($page = $page_required; $page <= $totalpage; $page++) {                
                 
-                $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
+                $trace->output(" call [request(/me/projects/{$folder->folderidvimeo}/videos)] ", 1);                
+                $param = array('direction' => 'asc', 'sort' => 'date', 'per_page' => VIDEOS_PER_PAGE_TO_ADD_DB, 'page' => $page);
+                $videos = $client->request("/me/projects/{$folder->folderidvimeo}/videos", $param);
                 
-                $totalpage = 1;
+                $totalvideos = $videos['body']['total'];                 
+                $totalpage = ($totalvideos > VIDEOS_PER_PAGE_TO_ADD_DB)? ceil($totalvideos / VIDEOS_PER_PAGE_TO_ADD_DB): 1;
+                $trace->output("folderid:{$folder->id} folderidvimeo:{$folder->folderidvimeo} {$folder->foldernamevimeo} totalvideo:$totalvideos page:$page/$totalpage ", 5);
                 
-                for ($page = 1; $page <= $totalpage; $page++) {
+                foreach ($videos['body']['data'] as $video) {
                     
-                    $param = array('direction' => 'asc', 'sort' => 'date', 'per_page' => VIDEOS_PER_PAGE, 'page' => $page);
+                    // Get information about quality and size from video.
+                    $quality_size = array();
+                    foreach ($video['download'] as $value) {
+                        $quality_size[$value['size']] = $value['public_name'];
+                    }
+                    ksort($quality_size, SORT_NUMERIC);
+                    end($quality_size);
                     
-                    debugging(date("Y-m-d H:i:s"). " vimeo_get_all_videos_from_folder [requeste(/me/projects/{$folder->folderidvimeo}/videos)], ", NO_DEBUG_DISPLAY);
-                    $videos = $client->request("/me/projects/{$folder->folderidvimeo}/videos", $param);
+                    $record = new \stdClass();
                     
-                    $totalvideos = $videos['body']['total'];
+                    $record->accountid        = $folder->accountid;
+                    $record->folderid         = $folder->id;
+                    $record->videoidvimeo     = str_replace('/videos/', '', $video['uri']);
+                    $record->videonamevimeo   = $video['name'];
+                    $record->linkvideo        = $video['link'];
+                    $record->linkpicture      = $video['pictures']['sizes'][0]['link'];
+                    $record->duration         = $video['duration'];
+                    $record->size_bytes       = key($quality_size);
+                    $record->quality          = $quality_size[key($quality_size)];
+                    $record->timecreated      = time();
+                    $record->timecreatedvimeo = strtotime($video['created_time']);
+                    $record->timemodified     = time();
+                    $record->page             = $page;
                     
-                    $totalpage = ($totalvideos > VIDEOS_PER_PAGE)? ceil($totalvideos / VIDEOS_PER_PAGE): 1;
-                    
-                    foreach ($videos['body']['data'] as $video) {
-                        
-                        // Get information about quality and size from video.
-                        $quality_size = array();
-                        foreach ($video['download'] as $value) {
-                            $quality_size[$value['size']] = $value['public_name'];
-                        }
-                        ksort($quality_size, SORT_NUMERIC);
-                        end($quality_size);
-                        
-                        $record = new \stdClass();
-                        
-                        $record->accountid        = $folder->accountid;
-                        $record->folderid         = $folder->id;
-                        $record->videoidvimeo     = str_replace('/videos/', '', $video['uri']);
-                        $record->videonamevimeo   = $video['name'];
-                        $record->linkvideo        = $video['link'];
-                        $record->linkpicture      = $video['pictures']['sizes'][0]['link'];
-                        $record->duration         = $video['duration'];
-                        $record->size_bytes       = key($quality_size);
-                        $record->quality          = $quality_size[key($quality_size)];
-                        $record->timecreated      = time();
-                        $record->timecreatedvimeo = strtotime($video['created_time']);
-                        $record->timemodified     = time();
-                        
-                        $listvideos[] = $record;
-                    } // End foreach $videos.
-                } // End foreach $page.
-            } // End if $account.
-            yield $listvideos;
-        } // End foreach folders.
-              
+                    yield $record;
+                } // End foreach $videos.
+            } // End foreach $page.
+        } // End if $account.              
     }
     
-    static public function add_all_videos() {
+    static public function add_all_videos(\progress_trace $trace) {
         
         global $DB;
         
-        debugging(date("Y-m-d H:i:s"). " Get all folders to fetch videos... ", NO_DEBUG_DISPLAY);
+        $trace->output(date("Y-m-d H:i:s"). " Get all folders to fetch videos... ", 0);
         
-        $conditions = [];//array('foldernamevimeo' => 'MoodleUpload_f21426');
+        $log = util::get_json_file();
         
-        // Select all users in folder's table.
-        if ( $folders = $DB->get_records('block_uploadvimeo_folders', $conditions) ) {
+        $where = " ";
+        $pagecurrent = 1;
+        if ($log) {
+            $trace->output("Localizando ultimo log... " . json_encode($log), 0);
+
+            $where = " WHERE f.foldernamevimeo >= (SELECT f1.foldernamevimeo 
+                                                     FROM {block_uploadvimeo_folders} f1 
+                                                    WHERE f1.id= {$log->folderid})";
+        }
+        
+        $sql = "SELECT f.*
+                  FROM {block_uploadvimeo_folders} f 
+                $where  
+              ORDER BY f.foldernamevimeo";
+        
+        if ( $folders = $DB->get_records_sql($sql) ) {
             
-            foreach (self::vimeo_get_all_videos_from_folder($folders) as $videos_from_vimeo) {
+            foreach ($folders as $folder) {
                 
-                foreach ($videos_from_vimeo as $video_vimeo) {
+                $num_video = 0;
+                $pagecurrent = ($log->folderid == $folder->id)? $log->page: 1;                
+                
+                foreach (self::vimeo_get_all_videos_from_folder($trace, $folder, $pagecurrent) as $video_vimeo_current) {                    
+
+                    $video_vimeo = new \stdClass();
+                    $video_vimeo->accountid        = $video_vimeo_current->accountid;
+                    $video_vimeo->folderid         = $video_vimeo_current->folderid;
+                    $video_vimeo->videoidvimeo     = $video_vimeo_current->videoidvimeo;
+                    $video_vimeo->videonamevimeo   = $video_vimeo_current->videonamevimeo;
+                    $video_vimeo->linkvideo        = $video_vimeo_current->linkvideo;
+                    $video_vimeo->linkpicture      = $video_vimeo_current->linkpicture;
+                    $video_vimeo->duration         = $video_vimeo_current->duration;
+                    $video_vimeo->size_bytes       = $video_vimeo_current->size_bytes;
+                    $video_vimeo->quality          = $video_vimeo_current->quality;
+                    $video_vimeo->timecreated      = $video_vimeo_current->timecreated;
+                    $video_vimeo->timecreatedvimeo = $video_vimeo_current->timecreatedvimeo;
+                    $video_vimeo->timemodified     = $video_vimeo_current->timemodified;
                     
-                    // Verify wheter video exists.
+                    $num_video++;
+                    $msgtrace = "videoidvimeo:{$video_vimeo->videoidvimeo}";
+
+                    // Verify whether video exists.
                     $params = array(
-                        'folderid' => $video_vimeo->folderid,
+                        'accountid' => $video_vimeo->accountid,
                         'videoidvimeo' => $video_vimeo->videoidvimeo
                     );
                     $video = $DB->get_record('block_uploadvimeo_videos', $params);
                     
                     if (!$video) {
                         // Add new video.
+                        $trace->output("video #$num_video - Saving $msgtrace...", 10);                        
                         $DB->insert_record('block_uploadvimeo_videos', $video_vimeo);
+                        
                     } else {
                         // Update video.
-                        if ($video->videonamevimeo != $video_vimeo->videonamevimeo || $video->linkvideo != $video_vimeo->linkvideo ||
+                        if ($video->videonamevimeo != $video_vimeo->videonamevimeo || 
+                            $video->linkvideo != $video_vimeo->linkvideo ||
                             $video->linkpicture != $video_vimeo->linkpicture) {
+                                
+                                $trace->output("video #$num_video - Updating $msgtrace...", 10);
                                 $video_vimeo->id = $video->id;
                                 $DB->update_record('block_uploadvimeo_videos', $video_vimeo);
-                        }
+                            } else {
+                                $trace->output("video #$num_video - Skipping $msgtrace...", 10);
+                            }
                     }
+                    $video_vimeo->page = $num_video;
+                    util::save_json_file($video_vimeo_current);                    
                 }
-                
-                
-            };
+            }
         }
     }
     
@@ -871,12 +929,12 @@ class uploadvimeo {
                 $videovimeo = $client->request('/videos/'.$video_to_update->videoidvimeo, array(), 'GET');
                 
                 if ($videovimeo['status'] != '200') { // OK
-                    $trace->output(date("Y-m-d H:i:s") . " -> Do not update videoid:{$video_to_update->id} link:{$video_to_update->link} return status {$videovimeo['status']} from vimeo");
+                    $trace->output(date("Y-m-d H:i:s") . " -> Do not update videoid:{$video_to_update->id} link:{$video_to_update->linkvideo} return status {$videovimeo['status']} from vimeo");
                     continue;
                 }
                 
                 if ($videovimeo['body']['transcode']['status'] != 'complete') {
-                    $trace->output(date("Y-m-d H:i:s") . " -> Do not update videoid:{$video_to_update->id} link:{$video_to_update->link} return status transcode {$videovimeo['body']['transcode']['status']} from vimeo");
+                    $trace->output(date("Y-m-d H:i:s") . " -> Do not update videoid:{$video_to_update->id} link:{$video_to_update->linkvideo} return status transcode {$videovimeo['body']['transcode']['status']} from vimeo");
                     continue;
                 }
                 
@@ -902,9 +960,11 @@ class uploadvimeo {
                 $videouploaded->timemodified     = time();
                 
                 $DB->update_record('block_uploadvimeo_videos', $videouploaded);
-                $trace->output(date("Y-m-d H:i:s") . " -> Video updated success videoid:{$video_to_update->id} link:{$video_to_update->link}");
+                $trace->output(date("Y-m-d H:i:s") . " -> Video updated success videoid:{$video_to_update->id} link:{$video_to_update->linkvideo}");
             }
-        }
+        } else {
+                $trace->output(date("Y-m-d H:i:s") . "  No videos to be updated");
+            }
     }
 
 

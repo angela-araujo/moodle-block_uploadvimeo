@@ -150,4 +150,5 @@ $string['msg_error_not_create_folder'] = 'Não foi possível criar a pasta (fold
 $string['msg_error_not_move_video_folder'] = 'Não foi possível mover o vídeo {$a->videoid} para a pasta {$a->foldername}';
 
 // Tasks.
-$string['updateimagetask'] = 'Atualizar imagens dos vídeos recém enviados para o Vimeo';
+$string['updateimagetask'] = 'Atualizar imagens dos vídeos';
+$string['sync'] = 'Carrega videos para o banco de dados';

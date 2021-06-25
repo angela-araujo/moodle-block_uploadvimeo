@@ -15,24 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Task definition for block_uploadvimeo.
+ * Update link's image from videos uploaded recently.
  *
  * @package   block_uploadvimeo
- * @copyright 2020 CCEAD PUC-Rio
+ * @copyright 2020 CCEAD PUC-Rio (@angela-araujo)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_uploadvimeo\task;
+
+use block_uploadvimeo\local\uploadvimeo;
+
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
-        'classname' => '\block_uploadvimeo\task\updateimage',
-        'blocking' => 0,
-        'minute' => 'R',
-        'hour' => '*',
-        'day' => '*',
-        'month' => '*',
-        'dayofweek' => '*',
-        'disabled' => 0
-    )
-);
+class sync extends \core\task\scheduled_task {
+    
+    public function get_name() {
+        return get_string('sync', 'block_uploadvimeo');
+    }
+
+    public function execute() {
+        $trace = new \text_progress_trace();
+        uploadvimeo::add_all_videos($trace);
+    }
+}

@@ -95,4 +95,35 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         
     }
     
+    public function display_page_account($records) {
+        // Prepare the data for the template.
+        $table = new stdClass();
+        
+        // Table headers.
+        $table->tableheaders = ['id', 'name', 'clientid', 'clientsecret', 'accesstoken', 'app_id', 'status'];
+        
+        // Build the data rows.
+        foreach ($records as $record) {
+            $data = array();
+            $data[] = $record->id;
+            $data[] = $record->name;
+            $data[] = $record->clientid;
+            $data[] = $record->clientsecret;
+            $data[] = $record->accesstoken;
+            $data[] = $record->app_id;
+            $data[] = $record->status;
+            $table->tabledata[] = $data;
+        }
+        
+        // Start output to browser.
+        echo $this->output->header();
+        
+        // Call our template to render the data.
+        echo $this->render_from_template('block_uploadvimeo/account', $table);
+        
+        // Finish the page.
+        echo $this->output->footer();
+    
+    }
+    
 }

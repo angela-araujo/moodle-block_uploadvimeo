@@ -78,6 +78,7 @@ class uploadvimeo {
         // Get folder or create if not exsts.
         $folder = self::get_folder($userid);
         if (!$folder) {
+            self::vimeo_search_folder($client, $foldername);
             $folder = self::vimeo_create_folder($userid, $usernamefolder);
             if (!$folder) {
                 debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', array('videoid' => $videoidvimeo, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
@@ -585,10 +586,12 @@ class uploadvimeo {
             'userid' => $userid, 
             'accountupload' => $accountid);
         
-        $folderspage = $DB->get_records_sql($select. $sql . $order, $params, $page*VIDEOS_PER_PAGE, VIDEOS_PER_PAGE);
         $countvideos = $DB->count_records_sql($selectcount. $sql, $params);
         
-        //print_r("<h1>total</h1><pre> ". count($folderspage));
+        $totalpage = ceil($countvideos/VIDEOS_PER_PAGE);
+        $page = (($page > $totalpage-1) and ($page < 0) )? 0: $page;
+        
+        $folderspage = $DB->get_records_sql($select. $sql . $order, $params, $page*VIDEOS_PER_PAGE, VIDEOS_PER_PAGE);
         
         $order = 0;
         $myvideos = [];
@@ -685,7 +688,12 @@ class uploadvimeo {
      * @param int $per_page
      * @return boolean|array array of folder found in vimeo or false if not
      */
-    static protected function vimeo_search_folder ($client, $foldername, $per_page = FOLDERS_PER_PAGE) {
+    static protected function vimeo_search_folder ($foldername, $per_page = FOLDERS_PER_PAGE) {
+        
+        global $DB;
+        $config = get_config('block_uploadvimeo');
+        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);
+        $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
         
         $totalpages = 1;
         
@@ -698,8 +706,6 @@ class uploadvimeo {
             $totalfolders = $foldersvimeo['body']['total'];
             
             $totalpages = ($totalfolders > FOLDERS_PER_PAGE)? ceil($totalfolders / FOLDERS_PER_PAGE): 1;
-                
-            $totalpages = ($foldersvimeo['body']['total'] > $per_page )? ceil($foldersvimeo['body']['total'] / $per_page): 1;
             
             // Get folders from the page.
             foreach ($foldersvimeo['body']['data'] as $folder) {
@@ -785,23 +791,23 @@ class uploadvimeo {
         global $DB;
         
         $trace->output(date("Y-m-d H:i:s"). " Get all folders to fetch videos... ", 0);
-        
+        $config = get_config('block_uploadvimeo');
         $log = util::get_json_file();
         
         $where = " ";
         $pagecurrent = 1;
         if ($log) {
-            $trace->output("Localizando ultimo log... " . json_encode($log), 0);
-
+            $trace->output("Searching last sync... " . json_encode($log), 0);
             $where = " WHERE f.foldernamevimeo >= (SELECT f1.foldernamevimeo 
                                                      FROM {block_uploadvimeo_folders} f1 
                                                     WHERE f1.id= {$log->folderid})";
         }
         
-        $sql = "SELECT f.*
+        $sql = "SELECT f.*,
+                       CASE WHEN f.accountid = {$config->accountvimeo} THEN 0 ELSE 1 END order_account 
                   FROM {block_uploadvimeo_folders} f 
                 $where  
-              ORDER BY f.foldernamevimeo";
+              ORDER BY f.foldernamevimeo, order_account";
         
         if ( $folders = $DB->get_records_sql($sql) ) {
             
@@ -855,9 +861,17 @@ class uploadvimeo {
                             }
                     }
                     $video_vimeo->page = $num_video;
-                    util::save_json_file($video_vimeo_current);                    
+                    util::save_json_file($video_vimeo_current);
                 }
             }
+            try {
+                $trace->output("Deleting log...", 10);
+                util::delete_file_temp(util::get_path_temp('log_sync.json'));
+            } catch (\Exception $e) {
+                $trace->output("Error to delete log: {$e->getMessage()}", 10);
+                util::save_json_file(new \stdClass());
+            }
+            
         }
     }
     

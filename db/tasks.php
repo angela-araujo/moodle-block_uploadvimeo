@@ -28,8 +28,8 @@ $tasks = array(
     array(
         'classname' => '\block_uploadvimeo\task\updateimage',
         'blocking' => 0,
-        'minute' => 'R',
-        'hour' => '*',
+        'minute' => '0',
+        'hour' => '3',
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',

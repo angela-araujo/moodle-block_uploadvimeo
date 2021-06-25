@@ -12,6 +12,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $urivideo = optional_param('urivideo', NULL, PARAM_TEXT);
 $deletevideoid = optional_param('deletevideoid', NULL, PARAM_INT);
 $videoid = optional_param('videoid', NULL, PARAM_INT);
+$page = optional_param('page', 0, PARAM_INT);
 $newthumbnail = util::get_param_file('newthumbnail_'.$videoid);
 $userid = $USER->id;
 
@@ -28,7 +29,7 @@ if ($urivideo) {
 } else if ($deletevideoid) {
     
     uploadvimeo::vimeo_delete_video($courseid, $deletevideoid);  
-    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]));
+    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid, 'page' => $page]));
     
 } else if (($newthumbnail) and ($videoid)){
     $response = array(
@@ -53,7 +54,7 @@ if ($urivideo) {
     
     //echo json_encode($response);    
 
-    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]), $response['message']);
+    redirect(new moodle_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid, 'page' => $page]), $response['message']);
 
 }
 

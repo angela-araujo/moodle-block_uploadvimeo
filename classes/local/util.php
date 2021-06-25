@@ -68,7 +68,7 @@ class util {
         return unlink($file_pointer);
     }
     
-    static private function get_path_temp($filename) {
+    static public function get_path_temp($filename) {
         global $CFG;
         $pathtemp = $CFG->dataroot . DIRECTORY_SEPARATOR .'temp'. DIRECTORY_SEPARATOR . 'vimeo';
         if (!is_dir($pathtemp)) {

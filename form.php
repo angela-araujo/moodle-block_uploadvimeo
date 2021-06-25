@@ -30,7 +30,7 @@ $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 
 $PAGE->set_course($course);
-$PAGE->set_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid]);
+$PAGE->set_url('/blocks/uploadvimeo/form.php', ['courseid' => $courseid, 'page' => $page]);
 $PAGE->set_context($coursecontext);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('standard');

@@ -84,8 +84,8 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $data->myvideos = $videos['videos'];
         $data->textmyvideos = $textmyvideos;
         $data->accesstoken = $token;
-        $data->urldeletevideo = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'deletevideoid' => '']);
-        $data->urleditthumbnail = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'videoid' => '']);
+        $data->urldeletevideo = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'page' => $page, 'deletevideoid' => '']);
+        $data->urleditthumbnail = new moodle_url('/blocks/uploadvimeo/update.php', ['courseid' => $courseid, 'page' => $page, 'videoid' => '']);
         $data->username = $username;
         
         // Start output to browser.

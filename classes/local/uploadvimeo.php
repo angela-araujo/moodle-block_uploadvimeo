@@ -472,6 +472,7 @@ class uploadvimeo {
         $videovimeo = $client->request("/videos/{$video->videoidvimeo}", array(), 'GET');
         if ($videovimeo['status'] != 200){
             debugging(date("Y-m-d H:i:s"). " [vimeo_edit_thumbnail] Get picture uri. Status: {$videovimeo['status']} Error: {$videovimeo['body']['error']}", NO_DEBUG_DISPLAY);
+            self::delete_video_not_found_in_vimeo($videoid);
             return false;
         }
         $picture_uri = $videovimeo['body']['metadata']['connections']['pictures']['uri'];
@@ -979,6 +980,37 @@ class uploadvimeo {
         } else {
                 $trace->output(date("Y-m-d H:i:s") . "  No videos to be updated");
             }
+    }
+    
+    static public function delete_video_not_found_in_vimeo(int $videoid) {
+        //  Status: 404 Error: The requested video couldn't be found.
+        
+        global $DB, $COURSE;
+        
+        $video = $DB->get_record('block_uploadvimeo_videos', ['id' => $videoid]);
+        if (!$video) {
+            return false;
+        }
+        
+        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $video->accountid]);
+        $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
+        
+        // Step 1: Get picture uri.
+        $videovimeo = $client->request("/videos/{$video->videoidvimeo}", array(), 'GET');
+        
+        if ($videovimeo['status'] == 404){
+            // Deleting in DB.
+            $DB->delete_records('block_uploadvimeo_videos', ['id' => $videoid]);
+            
+            // Log delete event.
+            $event = \block_uploadvimeo\event\video_deleted::create(
+                array(
+                    'courseid' => $COURSE->id,
+                    'objectid' => $videoid,
+                    'context' => context_course::instance($COURSE->id),
+                    'other' => array('videoid' => $videoid)));
+                $event->trigger();
+        }
     }
 
 

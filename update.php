@@ -41,7 +41,7 @@ if ($urivideo) {
         $response['status'] = 1;
         $response['message'] = 'Arquivo não enconrado';
         $response['urlnewthumbnail'] = $newthumbnail;
-    } else {    
+    } else {
         if ($urinewthumnail = uploadvimeo::vimeo_edit_thumbnail($videoid, $newthumbnail)){
             util::delete_file_temp($newthumbnail);    
             $response['urlnewthumbnail'] = $urinewthumnail;

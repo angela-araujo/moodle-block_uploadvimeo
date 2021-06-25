@@ -45,7 +45,7 @@ class util {
     }
     
     
-    function get_param_file($param) {
+    static public function get_param_file($param) {
         
         if (isset($_FILES[$param])) {           
             

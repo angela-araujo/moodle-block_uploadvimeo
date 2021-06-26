@@ -22,16 +22,20 @@
  */
 require ('../../config.php');
 
+global $DB;
 
-$courseid = required_param('courseid', PARAM_INT);
+$accountid = optional_param('id', -1, PARAM_INT);
+$action = optional_param('action', '', PARAM_TEXT);
 
-// Set course related variables.
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+if ($accountid) {
+    $action = 'edit';
+} else {
+    $action = 'add';
+}
+$course = $DB->get_record('course', array('id' => $COURSE->id), '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 
 $PAGE->set_course($course);
-
-// Set up the page.
 $PAGE->set_url('/blocks/uploadvimeo/account.php', array());
 $PAGE->set_context($coursecontext);
 $PAGE->set_heading($course->fullname);
@@ -40,26 +44,67 @@ $PAGE->set_title(get_string('pluginname', 'block_uploadvimeo'));
 
 require_login();
 
-require_capability('block/uploadvimeo:seepagevideos', $coursecontext);
+// @TODO: create a capability for this.
+//require_capability('block/uploadvimeo:seepagevideos', $coursecontext);
 
 $renderer = $PAGE->get_renderer('block_uploadvimeo');
 
+$mform = new block_uploadvimeo\local\account_form();
+
+if ($mform->is_cancelled()) {
+    redirect($PAGE->url, get_string('cancelled'),2);
+    exit;
+    
+} else if ($data = $mform->get_data()) {    
+    
+    if ($action == "edit"){
+        $DB->update_record('block_uploadvimeo_account', $data);
+        redirect($PAGE->url, 'updated', 2);
+    }
+    
+    if ($action == "add") {
+        $DB->insert_record('block_uploadvimeo_account', $data);
+        redirect($PAGE->url, 'inserted', 2);
+        
+    } 
+}
+
+echo $renderer->header();
+
+if ($action == 'delete' && $accountid) {
+    $folders = $DB->get_records('block_uploadvimeo_folders', ['accountid' => $accountid]);
+    $videos = $DB->get_records('block_uploadvimeo_videos', ['accountid' => $accountid]);
+    
+    if ($folders || $videos) {
+        redirect($PAGE->url, 'Account can t be deleted (dependences)', 2);
+    }
+    
+    if ($DB->delete_records('block_uploadvimeo_account', ['id' => $accountid])) {
+        redirect($PAGE->url, 'Account deleted!', 2);
+    }
+}
+
+// If the action is specified as "edit" then we show the edit form
+if ($action == "edit"){
+    $data = new stdClass();
+    $data = $DB->get_record('block_uploadvimeo_account', array('id' => $accountid));
+    
+    $mform->set_data($data);
+    
+    echo $renderer->heading('Cadastro de contas do Vimeo', 2);
+    
+    $mform->display();    
+}
+
+//echo $renderer->heading('Cadastro de contas do Vimeo', 2);
 $sql = "SELECT a.id, a.NAME, concat(substr(a.clientid, 1, 20), '...') clientid,
                concat(substr(a.clientsecret, 1, 20), '...') clientsecret,
                a.accesstoken,
                a.app_id, a.status
-          FROM {block_uploadvimeo_account} a"; 
+          FROM {block_uploadvimeo_account} a";
 
 $alldata = $DB->get_records_sql($sql);
-// Call the function at the top of the page to display an html table.
-//echo block_uploadvimeo_display_in_table($alldata);
 
-//$mform = new \block_uploadvimeo\local\account_form();
-//$mform->display();
+echo $renderer->display_page_account($alldata);
 
-$renderer->display_page_account($alldata);
-
-return;
-
-
-
+echo $renderer->footer();

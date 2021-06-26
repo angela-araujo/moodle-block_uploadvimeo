@@ -25,17 +25,21 @@
 
 namespace block_uploadvimeo\local;
 
-require ('../../config.php');
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot.'/lib/formslib.php');
 
 class account_form extends \moodleform {
     
     /**
      * Defines forms elements
      */
-    public function definition() {
+    protected function definition() {
         
         $mform = $this->_form;
         
+        $mform->addElement('header', 'account', 'Conta');
+         
         // Adding the standard "name" field.
         $fieldname ="name";
         $mform->addElement('text', $fieldname, $fieldname, array('size'=>'255'));
@@ -76,13 +80,20 @@ class account_form extends \moodleform {
         $status = array();
         $status[0] = get_string('inactive', 'block_uploadvimeo');
         $status[1] = get_string('active', 'block_uploadvimeo');
-        $mform->addElement('select', $fieldname, status, $status);
-        $mform->setDefault($fieldname, 0);
+        $mform->addElement('select', $fieldname, 'status', $status);
+        $mform->addRule($fieldname, null, 'required', null, 'client');
         
-        $mform->addElement('hidden','action','edit');
+        
+        $mform->addElement('hidden','action');
         $mform->setType('action', PARAM_TEXT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
+        
+        
         $this->add_action_buttons();
+    }
+    
+    public function validation($data, $files) {
+        return array();
     }
 }

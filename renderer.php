@@ -100,32 +100,30 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $table = new stdClass();
         
         // Table headers.
-        $table->tableheaders = ['id', 'name', 'clientid', 'clientsecret', 'accesstoken', 'app_id', 'status', 'action'];
+        $table->tableheaders = ['name', 'clientid', 'clientsecret', 'accesstoken', 'app_id', 'status', 'edit', 'delete'];
         
         // Build the data rows.
         foreach ($records as $record) {
+            
+            $url = '/blocks/uploadvimeo/account.php';
+           
             $data = array();
-            $data[] = $record->id;
             $data[] = $record->name;
             $data[] = $record->clientid;
             $data[] = $record->clientsecret;
             $data[] = $record->accesstoken;
             $data[] = $record->app_id;
             $data[] = $record->status;
-            $editlink = html_writer::link(new moodle_url('/blocks/uploadvmeo/account.php', ['id' => $record->id]), 'edit');
-            $data[] = $editlink;
+            $data[] = html_writer::link(new moodle_url($url, ['id' => $record->id, 'action' => 'edit']), 'edit');
+            $data[] = html_writer::link(new moodle_url($url, ['id' => $record->id, 'action' => 'delete']), 'delete');
             
             $table->tabledata[] = $data;
-        }
-        
-        // Start output to browser.
-        echo $this->output->header();
+        }        
+
+        $table->btnnewaccount = html_writer::link(new moodle_url($url, ['id' => -1, 'action' => 'add']), 'Add new account', array('class' => 'btn btn-primary'));
         
         // Call our template to render the data.
-        echo $this->render_from_template('block_uploadvimeo/account', $table);
-        
-        // Finish the page.
-        echo $this->output->footer();
+        return $this->render_from_template('block_uploadvimeo/account', $table);
     
     }
     

@@ -100,12 +100,24 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $table = new stdClass();
         
         // Table headers.
-        $table->tableheaders = ['name', 'clientid', 'clientsecret', 'accesstoken', 'app_id', 'status', 'edit', 'delete'];
+        $table->tableheaders = array(
+            get_string('name', 'block_uploadvimeo'),
+            get_string('clientid', 'block_uploadvimeo'),
+            get_string('clientsecret', 'block_uploadvimeo'),
+            get_string('accesstoken', 'block_uploadvimeo'),
+            get_string('app_id', 'block_uploadvimeo'),
+            get_string('status', 'block_uploadvimeo'), 
+            get_string('edit', 'block_uploadvimeo'),
+            get_string('delete', 'block_uploadvimeo'));
+        
+        $status = array();
+        $status[0] = get_string('inactive', 'block_uploadvimeo');
+        $status[1] = get_string('active', 'block_uploadvimeo');
         
         // Build the data rows.
         foreach ($records as $record) {
             
-            $url = '/blocks/uploadvimeo/account.php';
+            $urlbase = '/blocks/uploadvimeo/account.php';
            
             $data = array();
             $data[] = $record->name;
@@ -113,14 +125,17 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
             $data[] = $record->clientsecret;
             $data[] = $record->accesstoken;
             $data[] = $record->app_id;
-            $data[] = $record->status;
-            $data[] = html_writer::link(new moodle_url($url, ['id' => $record->id, 'action' => 'edit']), 'edit');
-            $data[] = html_writer::link(new moodle_url($url, ['id' => $record->id, 'action' => 'delete']), 'delete');
+            $data[] = $status[$record->status];
+            $url = new moodle_url($urlbase, ['id' => $record->id, 'action' => 'edit']);
+            $data[] = html_writer::link($url, get_string('edit', 'block_uploadvimeo'));
+            $url = new moodle_url($urlbase, ['id' => $record->id, 'action' => 'delete', 'sesskey'=>sesskey()]);
+            $data[] = html_writer::link($url, get_string('delete', 'block_uploadvimeo'));
             
             $table->tabledata[] = $data;
         }        
 
-        $table->btnnewaccount = html_writer::link(new moodle_url($url, ['id' => -1, 'action' => 'add']), 'Add new account', array('class' => 'btn btn-primary'));
+        $table->btnnewaccount = html_writer::link(new moodle_url($urlbase, ['id' => -1, 'action' => 'add']),get_string('add', 'block_uploadvimeo'), array('class' => 'btn btn-primary'));
+        $table->btnsettings = html_writer::link(new moodle_url('/admin/settings.php', ['section' => 'blocksettinguploadvimeo']),get_string('settings'), array('class' => 'btn btn-primary'));
         
         // Call our template to render the data.
         return $this->render_from_template('block_uploadvimeo/account', $table);

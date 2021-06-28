@@ -69,9 +69,9 @@ if ($ADMIN->fulltree) {
     
     $name = 'block_uploadvimeo/accountvimeo';
     $visiblename = new lang_string('accountvimeo', 'block_uploadvimeo');
-    $linkaccount = html_writer::link(new moodle_url('/blocks/uploadvimeo/account.php'), 'Click here to access a list account');
+    $linkaccount = html_writer::link(new moodle_url('/blocks/uploadvimeo/account.php'), get_string('link_account', 'block_uploadvimeo'), array('class' => 'btn btn-primary'));
     $description = new lang_string('accountvimeo_desc', 'block_uploadvimeo');
-    $description .= '<br>' . $linkaccount . '<br>';
+    $description .= '<br>' . $linkaccount . '<br><br>';
     $default = 0;
     $setting = new admin_setting_configselect($name, $visiblename, $description, $default, $choice_account);
     $settings->add($setting);

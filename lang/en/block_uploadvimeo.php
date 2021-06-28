@@ -32,6 +32,7 @@ $string['textblock'] = 'Para enviar e gerenciar seus vídeos, clique abaixo.';
 $string['config_headingaccess'] = 'Acesso Vimeo';
 $string['accountvimeo'] = 'Conta Vimeo para upload';
 $string['accountvimeo_desc'] = 'Conta padrão do Vimeo usada para fazer upload dos vídeos';
+$string['link_account'] = 'Lista de contas';
 
 // List options for settings.
 $string['hide'] = 'Ocultar';
@@ -153,5 +154,22 @@ $string['msg_error_not_move_video_folder'] = 'Não foi possível mover o vídeo 
 $string['updateimagetask'] = 'Atualizar imagens dos vídeos';
 $string['sync'] = 'Carrega videos para o banco de dados';
 
-$string['inactive'] = 'Inativa';
+// Account.
+$string['account_title'] = 'Contas Vimeo';
+$string['name'] = 'Nome';
+$string['clientid'] = 'Client ID';
+$string['clientsecret'] = 'Client Secret';
+$string['accesstoken'] = 'Token';
+$string['app_id'] = 'App ID';
+$string['status'] = 'Situação';
+$string['add'] = 'Adicionar nova conta';
+$string['edit'] = 'Editar';
+$string['delete'] = 'Excluir';
+$string['added_success'] = 'Conta adicionada com sucesso';
+$string['edited_success'] = 'Conta atualizada com sucesso';
+$string['delete_check'] = 'Você tem certeza absoluta que deseja excluir esta conta? <br><b>{$a->name}<br>Token: {$a->accesstoken}</b>';
+$string['deleted_success'] = 'Conta excluída com sucesso';
+$string['deleted_error'] = 'Não foi possível excluir a conta';
 $string['active'] = 'Ativa';
+$string['inactive'] = 'Inativa';
+

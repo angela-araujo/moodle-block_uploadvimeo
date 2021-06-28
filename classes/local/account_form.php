@@ -42,58 +42,65 @@ class account_form extends \moodleform {
          
         // Adding the standard "name" field.
         $fieldname ="name";
-        $mform->addElement('text', $fieldname, $fieldname, array('size'=>'255'));
+        $visiblename = get_string($fieldname, 'block_uploadvimeo'); 
+        $mform->addElement('text', $fieldname, $visiblename, array('size'=>'255'));
         $mform->setType($fieldname, PARAM_TEXT);
         $mform->addRule($fieldname, null, 'required', null, 'client');
         $mform->addRule($fieldname, get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         
         // Adding the standard "clientid" field.
         $fieldname ="clientid";
-        $mform->addElement('text', $fieldname, $fieldname, array('size'=>'255'));
+        $visiblename = get_string($fieldname, 'block_uploadvimeo');
+        $mform->addElement('text', $fieldname, $visiblename, array('size'=>'255'));
         $mform->setType($fieldname, PARAM_TEXT);
         $mform->addRule($fieldname, null, 'required', null, 'client');
         $mform->addRule($fieldname, get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         
         // Adding the standard "clientsecret" field.
         $fieldname ="clientsecret";
-        $mform->addElement('text', $fieldname, $fieldname, array('size'=>'255'));
+        $visiblename = get_string($fieldname, 'block_uploadvimeo');
+        $mform->addElement('text', $fieldname, $visiblename, array('size'=>'255'));
         $mform->setType($fieldname, PARAM_TEXT);
         $mform->addRule($fieldname, null, 'required', null, 'client');
         $mform->addRule($fieldname, get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         
         // Adding the standard "accesstoken" field.
         $fieldname ="accesstoken";
-        $mform->addElement('text', $fieldname, $fieldname, array('size'=>'255'));
+        $visiblename = get_string($fieldname, 'block_uploadvimeo');
+        $mform->addElement('text', $fieldname, $visiblename, array('size'=>'255'));
         $mform->setType($fieldname, PARAM_TEXT);
         $mform->addRule($fieldname, null, 'required', null, 'client');
         $mform->addRule($fieldname, get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         
         // Adding the standard "app_id" field.
         $fieldname ="app_id";
-        $mform->addElement('text', $fieldname, $fieldname, array('size'=>'50'));
+        $visiblename = get_string($fieldname, 'block_uploadvimeo');
+        $mform->addElement('text', $fieldname, $visiblename, array('size'=>'50'));
         $mform->setType($fieldname, PARAM_TEXT);
         $mform->addRule($fieldname, null, 'required', null, 'client');
         $mform->addRule($fieldname, get_string('maximumchars', '', 50), 'maxlength', 50, 'client');
         
         // Adding "status" field.
         $fieldname = 'status';
+        $visiblename = get_string($fieldname, 'block_uploadvimeo');
         $status = array();
         $status[0] = get_string('inactive', 'block_uploadvimeo');
         $status[1] = get_string('active', 'block_uploadvimeo');
-        $mform->addElement('select', $fieldname, 'status', $status);
+        $mform->addElement('select', $fieldname, $visiblename, $status);
+        $mform->setDefault($fieldname, 1);
         $mform->addRule($fieldname, null, 'required', null, 'client');
-        
         
         $mform->addElement('hidden','action');
         $mform->setType('action', PARAM_TEXT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
         
-        
         $this->add_action_buttons();
     }
     
     public function validation($data, $files) {
-        return array();
+        $errors = parent::validation($data, $files);
+        
+        return $errors;
     }
 }

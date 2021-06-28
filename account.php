@@ -20,18 +20,15 @@
  * @copyright 2020 CCEAD PUC-Rio
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require ('../../config.php');
 
 global $DB;
 
 $accountid = optional_param('id', -1, PARAM_INT);
 $action = optional_param('action', '', PARAM_TEXT);
+$confirm      = optional_param('confirm', '', PARAM_ALPHANUM);   //md5 confirmation hash
 
-if ($accountid) {
-    $action = 'edit';
-} else {
-    $action = 'add';
-}
 $course = $DB->get_record('course', array('id' => $COURSE->id), '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 
@@ -49,54 +46,87 @@ require_login();
 
 $renderer = $PAGE->get_renderer('block_uploadvimeo');
 
+  
+if ($action == 'delete' and confirm_sesskey()) {
+
+    $sql = "SELECT a.* 
+              FROM {block_uploadvimeo_account} a 
+             WHERE a.id = :id
+               AND a.id NOT IN (SELECT f.accountid FROM {block_uploadvimeo_folders} f)
+               AND a.id NOT IN (SELECT v.accountid FROM {block_uploadvimeo_videos} v)  ";
+    
+    $account = $DB->get_record_sql($sql, ['id' => $accountid]);
+    
+    if (!$account) {
+        redirect($PAGE->url, get_string('deleted_error', 'block_uploadvimeo', $account), 2);
+    }
+    
+    if ($confirm != md5($accountid)) {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('delete', 'block_uploadvimeo') . ' <b>' . $account->name . '</b>');
+        
+        $params_delete = array('action' => 'delete', 'id' => $accountid, 'confirm'=> md5($accountid), 'sesskey'=>sesskey());
+        $deleteurl = new moodle_url($PAGE->url, $params_delete);
+        $deletebutton = new single_button($deleteurl, get_string('delete'), 'post');
+        
+        echo $OUTPUT->confirm(get_string('delete_check', 'block_uploadvimeo', $account), $deletebutton, $PAGE->url);
+        echo $OUTPUT->footer();
+        die;
+        
+    } else if (data_submitted()) {
+        if ($DB->delete_records('block_uploadvimeo_account', ['id' => $accountid])) {
+            redirect($PAGE->url, get_string('deleted_success', 'block_uploadvimeo'), 2);        
+        } else {
+            redirect($PAGE->url, get_string('deleted_error', 'block_uploadvimeo'), 2);
+        }
+    }    
+    
+}
+
 $mform = new block_uploadvimeo\local\account_form();
 
 if ($mform->is_cancelled()) {
-    redirect($PAGE->url, get_string('cancelled'),2);
+    
+    redirect($PAGE->url);
     exit;
     
 } else if ($data = $mform->get_data()) {    
     
     if ($action == "edit"){
         $DB->update_record('block_uploadvimeo_account', $data);
-        redirect($PAGE->url, 'updated', 2);
+        redirect($PAGE->url, get_string('edited_success', 'block_uploadvimeo'), 2);
     }
     
     if ($action == "add") {
         $DB->insert_record('block_uploadvimeo_account', $data);
-        redirect($PAGE->url, 'inserted', 2);
-        
+        redirect($PAGE->url, get_string('added_success', 'block_uploadvimeo'), 2);        
     } 
 }
 
 echo $renderer->header();
 
-if ($action == 'delete' && $accountid) {
-    $folders = $DB->get_records('block_uploadvimeo_folders', ['accountid' => $accountid]);
-    $videos = $DB->get_records('block_uploadvimeo_videos', ['accountid' => $accountid]);
-    
-    if ($folders || $videos) {
-        redirect($PAGE->url, 'Account can t be deleted (dependences)', 2);
-    }
-    
-    if ($DB->delete_records('block_uploadvimeo_account', ['id' => $accountid])) {
-        redirect($PAGE->url, 'Account deleted!', 2);
-    }
-}
-
 // If the action is specified as "edit" then we show the edit form
-if ($action == "edit"){
+if ($action == 'edit'){
+    
     $data = new stdClass();
     $data = $DB->get_record('block_uploadvimeo_account', array('id' => $accountid));
-    
+    $data->action = $action;
+    $data->id = $accountid;
     $mform->set_data($data);
+    echo $renderer->heading('Contas Vimeo', 2);    
+    $mform->display();
     
-    echo $renderer->heading('Cadastro de contas do Vimeo', 2);
+} else if ($action == 'add') {
     
-    $mform->display();    
+    $data = new stdClass();
+    $data->action = $action;
+    $data->id = $accountid;
+    $mform->set_data($data);
+    $mform->display(); 
+    
 }
 
-//echo $renderer->heading('Cadastro de contas do Vimeo', 2);
+echo $renderer->heading(get_string('account_title', 'block_uploadvimeo'), 2);
 $sql = "SELECT a.id, a.NAME, concat(substr(a.clientid, 1, 20), '...') clientid,
                concat(substr(a.clientsecret, 1, 20), '...') clientsecret,
                a.accesstoken,

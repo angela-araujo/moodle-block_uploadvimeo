@@ -76,21 +76,30 @@ class uploadvimeo {
         $event->trigger();
         
         // Get folder or create if not exsts.
+        // 1. Get folder in DB.
         $folder = self::get_folder($userid);
+        
         if (!$folder) {
-            self::vimeo_search_folder($client, $foldername);
-            $folder = self::vimeo_create_folder($userid, $usernamefolder);
+            
+            // 2. Get folder in Vimeo and persist in DB.
+            $folder = self::vimeo_get_folder_to_persist($userid);
+            
             if (!$folder) {
-                debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', array('videoid' => $videoidvimeo, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
-                return false;
+            
+                // 3. Create folder in Vimeo and persist in DB.
+                $folder = self::vimeo_create_folder($userid, $usernamefolder);
+                if (!$folder) {
+                    debugging(get_string('msg_error_not_create_folder', 'block_uploadvimeo', array('videoid' => $videoidvimeo, 'foldername'=>$usernamefolder)), NO_DEBUG_DISPLAY);
+                    return false;
+                }
             }
         }
         
         // verify upload video to move.
-        for ($i = 1; $i <= $maxattemptverifyupload; $i++) {            
+        for ($i = 1; $i <= $maxattemptverifyupload; $i++) {
             if ($i > 1) sleep(5);            
             $msgdebug .= '<br>Attempt: ' . $i . '. upload.status ';
-            $videouploadcomplete = self::vimeo_verify_upload($videoidvimeo);            
+            $videouploadcomplete = self::vimeo_verify_upload($videoidvimeo);
             
             if ($videouploadcomplete) break;   
         }
@@ -102,7 +111,7 @@ class uploadvimeo {
         
         // Try move video to folder's user.
         for ($i = 1; $i <= $maxattemptverifyupload; $i++) {
-            if ($i > 1) sleep(5);            
+            if ($i > 1) sleep(5);
             $msgdebug .= '<br>Attempt: ' . $i . '. move folder in vimeo';
             
             if ($moved = self::vimeo_move_video_to_folder($folder, $videoidvimeo)) {
@@ -128,7 +137,7 @@ class uploadvimeo {
         $dataobject->linkpicture = $videouploadcomplete->linkpicture;
         $dataobject->duration = $videouploadcomplete->duration;
         $dataobject->size_bytes = $videouploadcomplete->size_bytes;
-        $dataobject->quality = $videouploadcomplete->quality;        
+        $dataobject->quality = $videouploadcomplete->quality;
         $dataobject->timemodified = time();*/
         
         $DB->update_record('block_uploadvimeo_videos', $videouploadcomplete);
@@ -147,7 +156,7 @@ class uploadvimeo {
         
         global $DB;
         
-        $params = array('id' => $videoid);        
+        $params = array('id' => $videoid);
         
         $sql = "SELECT v.videoidvimeo, a.*
                   FROM {block_uploadvimeo_videos} v 
@@ -237,7 +246,7 @@ class uploadvimeo {
         $user = $DB->get_record('user', array('id' => $userid), 'username', MUST_EXIST);
         $foldername = "MoodleUpload_{$user->username}";
         
-        $foldervimeoarray = self::vimeo_search_folder($client, $foldername);
+        $foldervimeoarray = self::vimeo_search_folder($foldername, 10);
         
         // If founded in vimeo then persist folder in db.
         if ($foldervimeoarray) {
@@ -326,7 +335,7 @@ class uploadvimeo {
         define(STATUS_FOLDER_CREATED, '201');
         
         $config = get_config('block_uploadvimeo');
-        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);        
+        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);
         $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
         
         $folder = $client->request('/me/projects', array('name' => $foldername), 'POST');
@@ -403,7 +412,7 @@ class uploadvimeo {
         
         global $COURSE, $DB;
         
-        $params = array('videoid' => $videoid);        
+        $params = array('videoid' => $videoid);
         $sql = "SELECT v.videoidvimeo, a.*
                   FROM {block_uploadvimeo_videos} v
                   JOIN {block_uploadvimeo_account} a ON a.id = v.accountid
@@ -459,14 +468,14 @@ class uploadvimeo {
     static public function vimeo_edit_thumbnail($videoid, $newimage){
         global $DB;
         
-        $video = $DB->get_record('block_uploadvimeo_videos', ['id' => $videoid]);        
+        $video = $DB->get_record('block_uploadvimeo_videos', ['id' => $videoid]);
         if (!$video) {
             debugging(date("Y-m-d H:i:s"). " [vimeo_edit_thumbnail] videoid=$videoid newimage=$newimage", NO_DEBUG_DISPLAY);
             return false;
         }
         
         $account = $DB->get_record('block_uploadvimeo_account', ['id' => $video->accountid]);
-        $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);        
+        $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
         
         // Step 1: Get picture uri.
         $videovimeo = $client->request("/videos/{$video->videoidvimeo}", array(), 'GET');
@@ -477,7 +486,7 @@ class uploadvimeo {
         }
         $picture_uri = $videovimeo['body']['metadata']['connections']['pictures']['uri'];
         
-        // Step 2: Get the upload link for the thumbnail. create the thumbnail's resource        
+        // Step 2: Get the upload link for the thumbnail. create the thumbnail's resource
         $newlink = $client->request($picture_uri, array(), 'POST');
         if ($newlink['status'] != 201) {
             // The HTTP status of 201 Created indicates that your thumbnail resource is ready.
@@ -516,9 +525,9 @@ class uploadvimeo {
      */
     static private function vimeo_verify_upload($videoidvimeo) {
         
-        global $DB;        
+        global $DB;
         $config = get_config('block_uploadvimeo');
-        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);        
+        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);
         $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
         
         $video = $client->request('/videos/'.$videoidvimeo, array(), 'GET');
@@ -681,7 +690,7 @@ class uploadvimeo {
     }
     
     /**
-     * Recursive function that search folder in vimeo, run to all pages
+     * Function that search folder in vimeo, run to all pages
      * 
      * @param Vimeo $client 
      * @param string $foldername
@@ -721,7 +730,7 @@ class uploadvimeo {
                         'timecreatedvimeo' => $folder['created_time'],
                     );
                 }
-            }            
+            }
         }
         return false;
     }
@@ -745,13 +754,13 @@ class uploadvimeo {
             
             $totalpage = $page_required;
             
-            for ($page = $page_required; $page <= $totalpage; $page++) {                
+            for ($page = $page_required; $page <= $totalpage; $page++) {
                 
-                $trace->output(" call [request(/me/projects/{$folder->folderidvimeo}/videos)] ", 1);                
+                $trace->output(" call [request(/me/projects/{$folder->folderidvimeo}/videos)] ", 1);
                 $param = array('direction' => 'asc', 'sort' => 'date', 'per_page' => VIDEOS_PER_PAGE_TO_ADD_DB, 'page' => $page);
                 $videos = $client->request("/me/projects/{$folder->folderidvimeo}/videos", $param);
                 
-                $totalvideos = $videos['body']['total'];                 
+                $totalvideos = $videos['body']['total'];
                 $totalpage = ($totalvideos > VIDEOS_PER_PAGE_TO_ADD_DB)? ceil($totalvideos / VIDEOS_PER_PAGE_TO_ADD_DB): 1;
                 $trace->output("folderid:{$folder->id} folderidvimeo:{$folder->folderidvimeo} {$folder->foldernamevimeo} totalvideo:$totalvideos page:$page/$totalpage ", 5);
                 
@@ -784,7 +793,7 @@ class uploadvimeo {
                     yield $record;
                 } // End foreach $videos.
             } // End foreach $page.
-        } // End if $account.              
+        } // End if $account.
     }
     
     static public function add_all_videos(\progress_trace $trace) {
@@ -815,9 +824,9 @@ class uploadvimeo {
             foreach ($folders as $folder) {
                 
                 $num_video = 0;
-                $pagecurrent = ($log->folderid == $folder->id)? $log->page: 1;                
+                $pagecurrent = ($log->folderid == $folder->id)? $log->page: 1;
                 
-                foreach (self::vimeo_get_all_videos_from_folder($trace, $folder, $pagecurrent) as $video_vimeo_current) {                    
+                foreach (self::vimeo_get_all_videos_from_folder($trace, $folder, $pagecurrent) as $video_vimeo_current) {
 
                     $video_vimeo = new \stdClass();
                     $video_vimeo->accountid        = $video_vimeo_current->accountid;
@@ -845,7 +854,7 @@ class uploadvimeo {
                     
                     if (!$video) {
                         // Add new video.
-                        $trace->output("video #$num_video - Saving $msgtrace...", 10);                        
+                        $trace->output("video #$num_video - Saving $msgtrace...", 10);
                         $DB->insert_record('block_uploadvimeo_videos', $video_vimeo);
                         
                     } else {
@@ -876,14 +885,14 @@ class uploadvimeo {
         }
     }
     
-    static public function get_account_by_id($accountid) {        
+    static public function get_account_by_id($accountid) {
         global $DB;        
         $params = array('id' => $accountid);        
         return $DB->get_record('block_uploadvimeo_account', $params);
     }
     
     
-    static public function get_a_specific_video($videoid) {        
+    static public function get_a_specific_video($videoid) {
         global $DB;        
         $params = array('id' => $videoid);        
         return $DB->get_record('block_uploadvimeo_videos', $params);
@@ -892,7 +901,7 @@ class uploadvimeo {
     static public function add_video_from_vimeo_to_moodle($videoidvimeo) {
         global $DB;        
         $config = get_config('block_uploadvimeo');
-        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);        
+        $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);
         $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
         
         $videovimeo = $client->request("/videos/$videoidvimeo", []);

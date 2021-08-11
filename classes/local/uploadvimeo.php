@@ -240,8 +240,6 @@ class uploadvimeo {
         $config = get_config('block_uploadvimeo');
         $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]) ;
         
-        $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
-        
         // Get name folder to search in vimeo.
         $user = $DB->get_record('user', array('id' => $userid), 'username', MUST_EXIST);
         $foldername = "MoodleUpload_{$user->username}";
@@ -261,8 +259,11 @@ class uploadvimeo {
             $moodlefolderid = $DB->insert_record('block_uploadvimeo_folders', $foldervimeo);
             
             return $DB->get_record('block_uploadvimeo_folders', array('id' => $moodlefolderid), '*', MUST_EXIST);
-        } else
+        } else {
+            $msg = 'function vimeo_get_folder_to_persist: ' . var_dump($foldervimeoarray);
+            debugging($msg, NO_DEBUG_DISPLAY);
             return false;
+        }
     }
 
     static public function get_short_title($title, $length) {
@@ -332,7 +333,8 @@ class uploadvimeo {
     static private function vimeo_create_folder($userid, $foldername) {
         
         global $DB;
-        define(STATUS_FOLDER_CREATED, '201');
+        
+        define('STATUS_FOLDER_CREATED', '201');
         
         $config = get_config('block_uploadvimeo');
         $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);
@@ -344,20 +346,22 @@ class uploadvimeo {
             
             $urifolder = str_replace('/projects/', ',', str_replace('/users/', '', $folder['body']['uri']));
             list($useridvimeo, $folderid) = explode(',', $urifolder);
-            
+            unset($useridvimeo);
             $foldervimeo = new \stdClass();
             $foldervimeo->userid = $userid;
             $foldervimeo->accountid = $config->accountvimeo;
-            $foldervimeo->foldernamevimeo = $folder['name'];
+            $foldervimeo->foldernamevimeo = $folder['body']['name'];
             $foldervimeo->folderidvimeo = $folderid;
             $foldervimeo->timecreated = time();
-            $foldervimeo->timecreatedvimeo = strtotime($folder['created_time']); // Ex.: [created_time] => 2020-09-29T14:15:37+00:00
+            $foldervimeo->timecreatedvimeo = strtotime($folder['body']['created_time']); // Ex.: [created_time] => 2020-09-29T14:15:37+00:00
             
             $moodlefolderid = $DB->insert_record('block_uploadvimeo_folders', $foldervimeo);
             
             return $DB->get_record('block_uploadvimeo_folders', array('id' => $moodlefolderid), '*', MUST_EXIST);
            
         } else {
+            $msg = '<pre>function vimeo_create_folder: <br>' . var_dump($folder) . '</pre>';
+            debugging($msg, NO_DEBUG_DISPLAY);   
             return false;
         }
         
@@ -899,7 +903,7 @@ class uploadvimeo {
     }
     
     static public function add_video_from_vimeo_to_moodle($videoidvimeo) {
-        global $DB;        
+        global $DB;
         $config = get_config('block_uploadvimeo');
         $account = $DB->get_record('block_uploadvimeo_account', ['id' => $config->accountvimeo]);
         $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);

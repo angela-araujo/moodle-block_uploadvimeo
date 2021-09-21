@@ -615,7 +615,13 @@ class uploadvimeo {
             
             $videoname = $video->videonamevimeo;
             
-            $uri = 'https://player.vimeo.com/video/'.$video->videoidvimeo.'?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id='.$app_id;
+            // From 14-09-2021 it became mandatory to add the hash parameter to the embed url.
+            $search = 'https://vimeo.com/' . $video->videoidvimeo . '/';
+            $hash = str_replace($search, '', $video->linkvideo); 
+            
+            $uri = 'https://player.vimeo.com/video/'.$video->videoidvimeo .
+            '?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0'.
+            '&amp;h='.$hash.'&amp;app_id='.$app_id;
             
             $htmlembed = '<iframe src="'. $uri. '" width="'. $config->config_width .'" height="' . $config->config_height . 
             '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen title="'.$videoname.'"></iframe>';

@@ -27,8 +27,8 @@ defined('MOODLE_INTERNAL') || die;
 if ($ADMIN->fulltree) {
     
     global $DB;
+    $choice_account = array();
     if ($accounts = $DB->get_records('block_uploadvimeo_account', ['status' => 1])) {
-        $choice_account = array();
         foreach ($accounts as $account) {
             $choice_account[$account->id] = $account->name;
         }
@@ -69,15 +69,16 @@ if ($ADMIN->fulltree) {
     
     $name = 'block_uploadvimeo/accountvimeo';
     $visiblename = new lang_string('accountvimeo', 'block_uploadvimeo');
-    $linkaccount = html_writer::link(new moodle_url('/blocks/uploadvimeo/account.php'), get_string('link_account', 'block_uploadvimeo'), array('class' => 'btn btn-primary'));
     $description = new lang_string('accountvimeo_desc', 'block_uploadvimeo');
-    $description .= '<br>' . $linkaccount . '<br><br>';
     $default = 0;
     $setting = new admin_setting_configselect($name, $visiblename, $description, $default, $choice_account);
     $settings->add($setting);
+
+    $accountsurl = new moodle_url('/blocks/uploadvimeo/account.php');
+    $linkaccount = html_writer::link($accountsurl, get_string('link_account', 'block_uploadvimeo'), ['class' => 'btn btn-primary mb-3']);
     
-    
-    
+    $setting = new admin_setting_description('linkaccount', '', $linkaccount);
+    $settings->add($setting);
     
     /*
     // Embed.

@@ -115,9 +115,9 @@ class block_uploadvimeo_renderer extends plugin_renderer_base {
         $status[1] = get_string('active', 'block_uploadvimeo');
         
         // Build the data rows.
+        $urlbase = '/blocks/uploadvimeo/account.php';
         foreach ($records as $record) {
             
-            $urlbase = '/blocks/uploadvimeo/account.php';
            
             $data = array();
             $data[] = $record->name;

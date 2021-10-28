@@ -173,3 +173,4 @@ $string['deleted_error'] = 'Não foi possível excluir a conta';
 $string['active'] = 'Ativa';
 $string['inactive'] = 'Inativa';
 
+$string['zoomupload'] = 'Upload videos from Zoom to Vimeo';

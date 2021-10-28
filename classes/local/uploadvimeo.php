@@ -1032,5 +1032,67 @@ class uploadvimeo {
         }
     }
 
+    static public function zoom_upload(\progress_trace $trace) {
+        global $DB;
 
+        $zoommoduleid = $DB->get_field('modules', 'id', ['name' => 'zoom']);
+
+        $sql =
+          "SELECT z.*, cm.course
+             FROM {zoom} z
+             JOIN {course_modules} cm
+               ON cm.instance = z.id AND cm.module = ?
+        LEFT JOIN {block_uploadvimeo_zoom} uz
+               ON uz.zoomid = z.id
+            WHERE uz.id IS NULL";
+        $params = [$zoommoduleid];
+
+        $zoomstoupload = $DB->get_records_sql($sql, $params);
+
+        $vimeo = $DB->get_record('block_uploadvimeo_account', [], '*', IGNORE_MULTIPLE);
+        $service = new \block_uploadvimeo\zoom();
+        $client = new \Vimeo\Vimeo($vimeo->clientid, $vimeo->clientsecret, $vimeo->accesstoken);
+
+        foreach ($zoomstoupload as $zoom) {
+
+            try {
+                $recordings = $service->get_recordings($zoom->meeting_id);
+            } catch (\moodle_exception $e) {
+                $trace->output($e->errorcode . ' - ' . $e->response . ' - ' . $zoom->id);
+                continue;
+            }
+            foreach ($recordings->recording_files as $rf) {
+                if (($rf->recording_type == 'shared_screen_with_speaker_view') && $rf->status == 'completed') {
+                    $recording_file = $rf;
+                    break;
+                }
+            }
+            if (empty($recording_file)) {
+                $trace->output('recording not found or not completed: ' . $zoom->id);
+            } else {
+
+                $result = $client->request('/me/videos',
+                    [
+                        'upload' => [
+                            "approach" => "pull",
+                            "size" => $recording_file->file_size,
+                            "link" => $recording_file->download_url . '?access_token=' . $recordings->download_access_token
+                        ],
+                        'name' => $zoom->name
+                    ],
+                'POST');
+                if ($users = get_enrolled_users(context_course::instance($zoom->course), 'moodle/course:manageactivities')) {
+                    $user = reset($users);
+                }
+                if (\block_uploadvimeo\local\uploadvimeo::video_upload($zoom->course, $user->id, $result['body']['uri'])) {
+                    $record = (object)['zoomid' => $zoom->id, 'timecreated' => time()];
+                    if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
+                        $trace->output('upload saved:' . $zoom->id);
+                    } else {
+                        $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                    }
+                }
+            }
+        }
+    }
 }

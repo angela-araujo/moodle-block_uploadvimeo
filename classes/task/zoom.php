@@ -15,15 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Update link's image from videos uploaded recently.
  *
- * @package    block_uploadvimeo
- * @copyright  2020 CCEAD PUC-Rio <angela@ccead.puc-rio.br>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_uploadvimeo
+ * @copyright 2021 CCEAD PUC-Rio (@angela-araujo)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_uploadvimeo\task;
+
+use block_uploadvimeo\local\uploadvimeo;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_uploadvimeo'; // Full name of the plugin (used for diagnostics)
-$plugin->version   = 2021102801;       	// The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2010112400;       	// Requires this Moodle version: Moodle 2.0 - 24 November 2010 
+class zoom extends \core\task\scheduled_task {
+
+    public function get_name() {
+        return get_string('zoomupload', 'block_uploadvimeo');
+    }
+
+    public function execute() {
+        $trace = new \text_progress_trace();
+        uploadvimeo::zoom_upload($trace);
+    }
+}

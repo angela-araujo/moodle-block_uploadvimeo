@@ -1058,9 +1058,14 @@ class uploadvimeo {
 
             try {
                 $recordings = $service->get_recordings($zoom->meeting_id);
-                $info = $service->get_meeting_webinar_info($zoom->meeting_id, false);
             } catch (\moodle_exception $e) {
                 $trace->output($e->errorcode . ' - ' . $e->response . ' - ' . $zoom->id);
+                $record = (object)['zoomid' => $zoom->id, 'timecreated' => time(), 'hasrecordings' => 0];
+                if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
+                    $trace->output('upload saved (no recordings):' . $zoom->id);
+                } else {
+                    $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                }
                 continue;
             }
             foreach ($recordings->recording_files as $rf) {
@@ -1072,6 +1077,8 @@ class uploadvimeo {
             if (empty($recording_file)) {
                 $trace->output('recording not found or not completed: ' . $zoom->id);
             } else {
+
+                $info = $service->get_meeting_webinar_info($zoom->meeting_id, false);
 
                 $result = $client->request('/me/videos',
                     [
@@ -1093,7 +1100,7 @@ class uploadvimeo {
                     $trace->output('WARNING: user not found: '. $info->host_email . '; upload NOT saved:' . $zoom->id);
                 } else {
                     if (self::video_upload($zoom->course, $userid, $result['body']['uri'])) {
-                        $record = (object)['zoomid' => $zoom->id, 'timecreated' => time()];
+                        $record = (object)['zoomid' => $zoom->id, 'timecreated' => time(), 'hasrecordings' => 1];
                         if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
                             $trace->output('upload saved:' . $zoom->id);
                         } else {

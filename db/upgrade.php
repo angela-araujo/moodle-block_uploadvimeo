@@ -272,5 +272,29 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         // Uploadvimeo savepoint reached.
         upgrade_block_savepoint(true, 2021102800, 'uploadvimeo');
     }
+
+    if ($oldversion < 2021111800) {
+
+        // Define field hasrecordings to be added to block_uploadvimeo_zoom.
+        $table = new xmldb_table('block_uploadvimeo_zoom');
+        $field = new xmldb_field('hasrecordings', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field hasrecordings.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define index hasrecordings (not unique) to be added to block_uploadvimeo_zoom.
+        $index = new xmldb_index('hasrecordings', XMLDB_INDEX_NOTUNIQUE, ['hasrecordings']);
+
+        // Conditionally launch add index hasrecordings.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, 2021111800, 'uploadvimeo');
+    }
+
     return true;
 }

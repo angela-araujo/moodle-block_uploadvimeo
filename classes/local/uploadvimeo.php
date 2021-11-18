@@ -1058,6 +1058,7 @@ class uploadvimeo {
 
             try {
                 $recordings = $service->get_recordings($zoom->meeting_id);
+                $info = $service->get_meeting_webinar_info($zoom->meeting_id, false);
             } catch (\moodle_exception $e) {
                 $trace->output($e->errorcode . ' - ' . $e->response . ' - ' . $zoom->id);
                 continue;
@@ -1082,15 +1083,22 @@ class uploadvimeo {
                         'name' => $zoom->name
                     ],
                 'POST');
-                if ($users = get_enrolled_users(context_course::instance($zoom->course), 'moodle/course:manageactivities')) {
+                if (!empty($info->host_email)) {
+                    $userid = $DB->get_field('user', 'id', ['email' => $info->host_email]);
+                } else if ($users = get_enrolled_users(context_course::instance($zoom->course), 'moodle/course:manageactivities')) {
                     $user = reset($users);
+                    $userid = $user->id;
                 }
-                if (\block_uploadvimeo\local\uploadvimeo::video_upload($zoom->course, $user->id, $result['body']['uri'])) {
-                    $record = (object)['zoomid' => $zoom->id, 'timecreated' => time()];
-                    if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
-                        $trace->output('upload saved:' . $zoom->id);
-                    } else {
-                        $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                if (empty($userid)) {
+                    $trace->output('WARNING: user not found: '. $info->host_email . '; upload NOT saved:' . $zoom->id);
+                } else {
+                    if (self::video_upload($zoom->course, $userid, $result['body']['uri'])) {
+                        $record = (object)['zoomid' => $zoom->id, 'timecreated' => time()];
+                        if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
+                            $trace->output('upload saved:' . $zoom->id);
+                        } else {
+                            $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                        }
                     }
                 }
             }

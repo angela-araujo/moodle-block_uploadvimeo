@@ -1087,7 +1087,35 @@ class uploadvimeo {
                             "size" => $recording_file->file_size,
                             "link" => $recording_file->download_url . '?access_token=' . $recordings->download_access_token
                         ],
-                        'name' => $zoom->name
+                        'name' => $zoom->name,
+                        'description' => $zoom->name,
+                        'privacy' => [
+                            'download' => false,
+                            'view' => 'unlisted',
+                            'embed' => 'whitelist',
+                            'add' => false,
+                            'comments' => 'nobody'
+                        ],
+                        'embed' => [
+                            'buttons' => [
+                                'embed' => false,
+                                'fullscreen' => true,
+                                'like' => false,
+                                'share' => false
+                            ],
+                            'color' => '#ff9933',
+                            'logos' => [
+                                'vimeo' => false,
+                                'custom' => [
+                                    'active' => false
+                                ]
+                            ],
+                            'title' => [
+                                'name' => 'hide',
+                                'portrait' => 'hide'
+                            ],
+                            'speed' => true
+                        ]
                     ],
                 'POST');
                 if (!empty($info->host_email)) {

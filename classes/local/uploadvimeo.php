@@ -1049,7 +1049,8 @@ class uploadvimeo {
 
         $zoomstoupload = $DB->get_records_sql($sql, $params);
 
-        $vimeo = $DB->get_record('block_uploadvimeo_account', [], '*', IGNORE_MULTIPLE);
+        $account = get_config('block_uploadvimeo', 'accountvimeo');
+        $vimeo = $DB->get_record('block_uploadvimeo_account', ['id' => $account]);
         $service = new \block_uploadvimeo\zoom();
         $client = new \Vimeo\Vimeo($vimeo->clientid, $vimeo->clientsecret, $vimeo->accesstoken);
 

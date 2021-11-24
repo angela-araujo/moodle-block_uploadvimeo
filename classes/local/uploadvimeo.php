@@ -1078,62 +1078,81 @@ class uploadvimeo {
                 $trace->output('recording not found or not completed: ' . $zoom->id);
             } else {
 
-                $info = $service->get_meeting_webinar_info($zoom->meeting_id, false);
-
-                $result = $client->request('/me/videos',
-                    [
-                        'upload' => [
-                            "approach" => "pull",
-                            "size" => $recording_file->file_size,
-                            "link" => $recording_file->download_url . '?access_token=' . $recordings->download_access_token
-                        ],
-                        'name' => $zoom->name,
-                        'description' => $zoom->name,
-                        'privacy' => [
-                            'download' => false,
-                            'view' => 'unlisted',
-                            'embed' => 'whitelist',
-                            'add' => false,
-                            'comments' => 'nobody'
-                        ],
-                        'embed' => [
-                            'buttons' => [
-                                'embed' => false,
-                                'fullscreen' => true,
-                                'like' => false,
-                                'share' => false
-                            ],
-                            'color' => '#ff9933',
-                            'logos' => [
-                                'vimeo' => false,
-                                'custom' => [
-                                    'active' => false
-                                ]
-                            ],
-                            'title' => [
-                                'name' => 'hide',
-                                'portrait' => 'hide'
-                            ],
-                            'speed' => true
-                        ]
-                    ],
-                'POST');
-                if (!empty($info->host_email)) {
-                    $userid = $DB->get_field('user', 'id', ['email' => $info->host_email]);
-                } else if ($users = get_enrolled_users(context_course::instance($zoom->course), 'moodle/course:manageactivities')) {
-                    $user = reset($users);
-                    $userid = $user->id;
+                try {
+                    $info = $service->get_meeting_webinar_info($zoom->meeting_id, false);
+                } catch (\Exception $e) {
+                    $error = $e->getMessage();
                 }
-                if (empty($userid)) {
-                    $trace->output('WARNING: user not found: '. $info->host_email . '; upload NOT saved:' . $zoom->id);
+
+                if (isset($error)) {
+                    $trace->output('Zoom exception: ' . $error);
+                } else if (empty($info->host_email)) {
+                    $trace->output('WARNING: host_email empty; upload NOT saved:' . $zoom->id);
                 } else {
-                    if (self::video_upload($zoom->course, $userid, $result['body']['uri'])) {
-                        $record = (object)['zoomid' => $zoom->id, 'timecreated' => time(), 'hasrecordings' => 1];
-                        if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
-                            $trace->output('upload saved:' . $zoom->id);
-                        } else {
-                            $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                    $users = get_enrolled_users(
+                        context_course::instance($zoom->course),
+                        'moodle/course:manageactivities',
+                        0,
+                        'u.id,u.username,u.email'
+                    );
+
+                    foreach ($users as $user) {
+                        if ($user->email == $info->host_email) {
+
+                            $result = $client->request('/me/videos',
+                                [
+                                    'upload' => [
+                                        "approach" => "pull",
+                                        "size" => $recording_file->file_size,
+                                        "link" => $recording_file->download_url . '?access_token=' . $recordings->download_access_token
+                                    ],
+                                    'name' => $zoom->name,
+                                    'description' => $user->username,
+                                    'privacy' => [
+                                        'download' => false,
+                                        'view' => 'unlisted',
+                                        'embed' => 'whitelist',
+                                        'add' => false,
+                                        'comments' => 'nobody'
+                                    ],
+                                    'embed' => [
+                                        'buttons' => [
+                                            'embed' => false,
+                                            'fullscreen' => true,
+                                            'like' => false,
+                                            'share' => false
+                                        ],
+                                        'color' => '#ff9933',
+                                        'logos' => [
+                                            'vimeo' => false,
+                                            'custom' => [
+                                                'active' => false
+                                            ]
+                                        ],
+                                        'title' => [
+                                            'name' => 'hide',
+                                            'portrait' => 'hide'
+                                        ],
+                                        'speed' => true
+                                    ]
+                                ],
+                            'POST');
+
+                            $trace->output('Video sent to vimeo:' . var_export($result, true));
+
+                            if (self::video_upload($zoom->course, $user->id, $result['body']['uri'])) {
+                                $record = (object)['zoomid' => $zoom->id, 'timecreated' => time(), 'hasrecordings' => 1];
+                                if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
+                                    $trace->output('Upload saved:' . $zoom->id);
+                                } else {
+                                    $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                                }
+                            }
+                            break;
                         }
+                    }
+                    if (!isset($record)) {
+                        $trace->output('WARNING: user not found, host_email = ' . $info->host_email . ' ; upload NOT saved:' . $zoom->id);
                     }
                 }
             }

@@ -69,7 +69,7 @@
         <FIELD NAME="zoomid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="recordingid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="vimeouri" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="vimevideoid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="vimeocompleted" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>

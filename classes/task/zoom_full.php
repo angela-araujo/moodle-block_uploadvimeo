@@ -15,27 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Update link's image from videos uploaded recently.
+ * Get all zoom activities that need to be uploaded to vimeo.
  *
  * @package   block_uploadvimeo
- * @copyright 2020 CCEAD PUC-Rio (@angela-araujo)
+ * @copyright 2021 CCEAD PUC-Rio (@angela-araujo)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace block_uploadvimeo\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 use block_uploadvimeo\local\uploadvimeo;
 
-class updateimage extends \core\task\scheduled_task {
-    
+defined('MOODLE_INTERNAL') || die();
+
+class zoom_full extends \core\task\scheduled_task {
+
     public function get_name() {
-        return get_string('updateimagetask', 'block_uploadvimeo');
+        return get_string('zoomupload', 'block_uploadvimeo');
     }
 
     public function execute() {
         $trace = new \text_progress_trace();
-        uploadvimeo::update_images_from_vimeo($trace);
+        uploadvimeo::zoom_full_upload($trace);
     }
 }

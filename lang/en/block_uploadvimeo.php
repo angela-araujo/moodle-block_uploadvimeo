@@ -174,3 +174,4 @@ $string['active'] = 'Ativa';
 $string['inactive'] = 'Inativa';
 
 $string['zoomupload'] = 'Upload videos from Zoom to Vimeo';
+$string['zoomdelete'] = 'Delete videos on Zoom that are completed on Vimeo';

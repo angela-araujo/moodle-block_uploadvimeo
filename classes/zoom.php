@@ -785,4 +785,9 @@ class zoom {
         $url = 'meetings/'.$meeting_id.'/recordings?include_fields=download_access_token';
         return $this->make_call($url);
     }
+
+    public function delete_recordings($meeting_id, $action = 'trash') {
+        $url = 'meetings/'.$meeting_id.'/recordings?action=' . $action;
+        return $this->make_call($url, null, 'delete');
+    }
 }

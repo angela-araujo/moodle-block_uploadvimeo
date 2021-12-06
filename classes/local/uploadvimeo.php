@@ -947,7 +947,7 @@ class uploadvimeo {
         
     }
     
-    static public function update_images_from_vimeo (\progress_trace $trace) {
+    static public function update_images_from_vimeo(\progress_trace $trace) {
         global $DB;
         
         $params = array('quality' => 'Original');
@@ -1032,7 +1032,7 @@ class uploadvimeo {
         }
     }
 
-    static public function full_zoom_upload(\progress_trace $trace) {
+    static public function zoom_full_upload(\progress_trace $trace) {
         global $DB;
 
         $zoommoduleid = $DB->get_field('modules', 'id', ['name' => 'zoom']);
@@ -1068,14 +1068,14 @@ class uploadvimeo {
                 }
                 continue;
             }
-            if (!$hostuser = self::get_zoom_host_user($zoom, $recordings)) {
+            if (!$hostuser = self::zoom_get_host_user($zoom, $recordings)) {
                 $trace->output('WARNING: user not found, host_email = ' . $recordings->host_email . ' ; upload NOT saved:' . $zoom->id);
             }
-            self::send_zoom_recordings_to_vimeo($recordings, $hostuser, $zoom, $vimeoclient);
+            self::zoom_send_recordings_to_vimeo($recordings, $hostuser, $zoom, $vimeoclient);
         }
     }
 
-    public static function process_zoom_webhook($notification) {
+    public static function zoom_process_webhook($notification) {
         global $DB;
 
         $account = get_config('block_uploadvimeo', 'accountvimeo');
@@ -1084,12 +1084,47 @@ class uploadvimeo {
 
         $zoom = $DB->get_record('zoom', ['meeting_id' => $notification->id]);
 
-        if (!$hostuser = self::get_zoom_host_user($zoom, $notification->object)) {
+        if (!$hostuser = self::zoom_get_host_user($zoom, $notification->object)) {
             return false;
         }
-        self::send_zoom_recordings_to_vimeo($notification->object, $hostuser, $zoom, $vimeoclient);
+        self::zoom_send_recordings_to_vimeo($notification->object, $hostuser, $zoom, $vimeoclient);
 
     }
+
+    public static function zoom_delete_completed($trace) {
+        global $DB;
+
+        $sql = "SELECT uvz.*, z.meeting_id, uvv.accountid, uvv.videoidvimeo
+                  FROM {block_uploadvimeo_zoom} uvz
+                  JOIN {zoom} z
+                    ON z.id = uvz.zoomid
+                  JOIN {block_uploadvimeo_videos} uvv
+                    ON uvv.videoidvimeo = uvz.vimeovideoid
+                 WHERE uvz.vimeocompleted = 0";
+        $videostocheck = $DB->get_records_sql($sql);
+
+        $zoomservice = new \block_uploadvimeo\zoom();
+
+        $trace->output('Videos para verificar: ' . count($videostocheck));
+        foreach ($videostocheck as $v) {
+            $account = $DB->get_record('block_uploadvimeo_account', ['id' => $v->accountid]);
+            $client = new Vimeo($account->clientid, $account->clientsecret, $account->accesstoken);
+
+            $videovimeo = $client->request('/videos/'.$v->videoidvimeo, array(), 'GET');
+
+            if (($videovimeo['status'] == '200') && ($videovimeo['body']['transcode']['status'] == 'complete')) {
+                $v->vimeocompleted = 1;
+                $trace->output('Concluído: ' . $v->videoidvimeo);
+                $DB->update_record('block_uploadvimeo_zoom', $v);
+            } else {
+                $trace->output('Incompleto ou erro: ' . var_export($videovimeo));
+            }
+        }
+
+        // TODO: verificar se todos os vídeos de um mesmo meeting estão completos e, caso positivo, excluir
+        // $zoomservice->delete_recordings($v->meetingid);
+    }
+
 
     private static function upload_pull_metadata($recordingfile, $recordings, $hostuser, $zoom) {
         $videostart = new \DateTime($recordingfile->recording_start);
@@ -1133,7 +1168,7 @@ class uploadvimeo {
         ];
     }
 
-    private static function get_zoom_host_user($zoom, $recordings) {
+    private static function zoom_get_host_user($zoom, $recordings) {
         $users = get_enrolled_users(
             context_course::instance($zoom->course),
             'moodle/course:manageactivities',
@@ -1148,7 +1183,7 @@ class uploadvimeo {
         return null;
     }
 
-    private static function send_zoom_recordings_to_vimeo($recordings, $hostuser, $zoom, $vimeoclient, $trace = null) {
+    private static function zoom_send_recordings_to_vimeo($recordings, $hostuser, $zoom, $vimeoclient, $trace = null) {
         global $DB;
 
         foreach ($recordings->recording_files as $recordingfile) {
@@ -1166,11 +1201,12 @@ class uploadvimeo {
                     }
 
                     if (self::video_upload($zoom->course, $hostuser->id, $result['body']['uri'])) {
+                        $vimeovideoid = explode('/', $result['body']['uri'])[1];
                         $record = (object)[
                             'zoomid' => $zoom->id,
                             'timecreated' => time(),
                             'recordingid' => $recordingfile->id,
-                            'vimeouri' => $result['body']['uri'],
+                            'vimeovideoid' => $vimeovideoid,
                             'vimeocompleted' => 0
                         ];
                         if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {

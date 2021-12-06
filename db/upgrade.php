@@ -344,5 +344,18 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021113000, 'uploadvimeo');
     }
 
+    if ($oldversion < 2021120600) {
+
+        // Rename field vimeouri on table block_uploadvimeo_zoom to NEWNAMEGOESHERE.
+        $table = new xmldb_table('block_uploadvimeo_zoom');
+        $field = new xmldb_field('vimeouri', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'recordingid');
+
+        // Launch rename field vimeouri to vimevideoid.
+        $dbman->rename_field($table, $field, 'vimeovideoid');
+
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, 2021120600, 'uploadvimeo');
+    }
+
     return true;
 }

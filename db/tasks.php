@@ -46,7 +46,17 @@ $tasks = array(
         'disabled' => 0
     ),
     array(
-        'classname' => '\block_uploadvimeo\task\zoom',
+        'classname' => '\block_uploadvimeo\task\zoom_full',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => 'R',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0
+    ),
+    array(
+        'classname' => '\block_uploadvimeo\task\zoom_delete',
         'blocking' => 0,
         'minute' => 'R',
         'hour' => 'R',

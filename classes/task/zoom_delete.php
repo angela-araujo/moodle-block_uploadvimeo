@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Get all zoom activities that need to be uploaded to vimeo.
+ * Delete recordings on Zoom that are completed on Vimeo.
  *
  * @package   block_uploadvimeo
  * @copyright 2021 CCEAD PUC-Rio (@angela-araujo)
@@ -28,14 +28,14 @@ use block_uploadvimeo\local\uploadvimeo;
 
 defined('MOODLE_INTERNAL') || die();
 
-class zoom extends \core\task\scheduled_task {
+class zoom_delete extends \core\task\scheduled_task {
 
     public function get_name() {
-        return get_string('zoomupload', 'block_uploadvimeo');
+        return get_string('zoomdelete', 'block_uploadvimeo');
     }
 
     public function execute() {
         $trace = new \text_progress_trace();
-        uploadvimeo::full_zoom_upload($trace);
+        uploadvimeo::zoom_delete_completed($trace);
     }
 }

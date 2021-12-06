@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Update link's image from videos uploaded recently.
+ * Get all zoom activities that need to be uploaded to vimeo.
  *
  * @package   block_uploadvimeo
  * @copyright 2021 CCEAD PUC-Rio (@angela-araujo)
@@ -36,6 +36,6 @@ class zoom extends \core\task\scheduled_task {
 
     public function execute() {
         $trace = new \text_progress_trace();
-        uploadvimeo::zoom_upload($trace);
+        uploadvimeo::full_zoom_upload($trace);
     }
 }

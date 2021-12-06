@@ -1121,8 +1121,23 @@ class uploadvimeo {
             }
         }
 
-        // TODO: verificar se todos os vídeos de um mesmo meeting estão completos e, caso positivo, excluir
-        // $zoomservice->delete_recordings($v->meetingid);
+        // TODO: filter zoom activities already processed.
+        $sql = "SELECT DISTINCT(uvz.zoomid) as zoomid, z.meeting_id
+                  FROM {block_uploadvimeo_zoom} uvz
+                  JOIN {zoom} z
+                    ON (z.id = uvz.zoomid)
+                 WHERE recordingid IS NOT NULL";
+        $zooms = $DB->get_records_sql($sql);
+        foreach ($zooms as $zoom) {
+            if (!$DB->record_exists('block_uploadvimeo_zoom', ['zoomid' => $zoom->zoomid, 'vimeocompleted' => 0])) {
+                try {
+                    $trace->output($zoom->meeting_id);
+                    $zoomservice->delete_recordings($zoom->meeting_id);
+                } catch (\Exception $e) {
+                    $trace->output($e->getMessage());
+                }
+            }
+        }
     }
 
 

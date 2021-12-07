@@ -1112,30 +1112,17 @@ class uploadvimeo {
 
             $videovimeo = $client->request('/videos/'.$v->videoidvimeo, array(), 'GET');
 
-            if (($videovimeo['status'] == '200') && ($videovimeo['body']['transcode']['status'] == 'complete')) {
-                $v->vimeocompleted = 1;
-                $trace->output('Concluído: ' . $v->videoidvimeo);
-                $DB->update_record('block_uploadvimeo_zoom', $v);
-            } else {
-                $trace->output('Incompleto ou erro: ' . var_export($videovimeo));
-            }
-        }
-
-        // TODO: filter zoom activities already processed.
-        $sql = "SELECT DISTINCT(uvz.zoomid) as zoomid, z.meeting_id
-                  FROM {block_uploadvimeo_zoom} uvz
-                  JOIN {zoom} z
-                    ON (z.id = uvz.zoomid)
-                 WHERE recordingid IS NOT NULL";
-        $zooms = $DB->get_records_sql($sql);
-        foreach ($zooms as $zoom) {
-            if (!$DB->record_exists('block_uploadvimeo_zoom', ['zoomid' => $zoom->zoomid, 'vimeocompleted' => 0])) {
-                try {
-                    $trace->output($zoom->meeting_id);
-                    $zoomservice->delete_recordings($zoom->meeting_id);
-                } catch (\Exception $e) {
-                    $trace->output($e->getMessage());
+            if ($videovimeo['status'] == '200') {
+                if ($videovimeo['body']['transcode']['status'] == 'complete') {
+                    $v->vimeocompleted = 1;
+                    $trace->output('Concluído: ' . $v->videoidvimeo);
+                    $DB->update_record('block_uploadvimeo_zoom', $v);
+                    $zoomservice->delete_recording($zoom->meeting_id, $zoom->recordingid);
+                } else {
+                    $trace->output('Processando: ' . $v->videoidvimeo);
                 }
+            } else {
+                $trace->output('Erro: ' . var_export($videovimeo));
             }
         }
     }

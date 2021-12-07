@@ -786,7 +786,7 @@ class zoom {
         return $this->make_call($url);
     }
 
-    public function delete_recording($meeting_id, $recording_id $action = 'trash') {
+    public function delete_recording($meeting_id, $recording_id, $action = 'trash') {
         $url = 'meetings/' . $meeting_id . '/recordings/' . $recording_id . '?action=' . $action;
         return $this->make_call($url, null, 'DELETE');
     }

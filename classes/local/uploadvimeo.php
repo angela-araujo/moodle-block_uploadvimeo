@@ -1117,7 +1117,7 @@ class uploadvimeo {
                     $v->vimeocompleted = 1;
                     $trace->output('Concluído: ' . $v->videoidvimeo);
                     $DB->update_record('block_uploadvimeo_zoom', $v);
-                    $zoomservice->delete_recording($zoom->meeting_id, $zoom->recordingid);
+                    $zoomservice->delete_recording($v->meeting_id, $v->recordingid);
                 } else {
                     $trace->output('Processando: ' . $v->videoidvimeo);
                 }
@@ -1203,7 +1203,7 @@ class uploadvimeo {
                     }
 
                     if (self::video_upload($zoom->course, $hostuser->id, $result['body']['uri'])) {
-                        $vimeovideoid = explode('/', $result['body']['uri'])[1];
+                        $vimeovideoid = explode('/', $result['body']['uri'])[2];
                         $record = (object)[
                             'zoomid' => $zoom->id,
                             'timecreated' => time(),

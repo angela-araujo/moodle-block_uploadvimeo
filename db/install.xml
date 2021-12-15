@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/uploadvimeo/db" VERSION="20211206" COMMENT="XMLDB file for Moodle blocks/uploadvimeo"
+<XMLDB PATH="blocks/uploadvimeo/db" VERSION="20211215" COMMENT="XMLDB file for Moodle blocks/uploadvimeo"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -75,6 +75,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="zoomid" TYPE="foreign" FIELDS="zoomid" REFTABLE="zoom" REFFIELDS="id"/>
+        <KEY NAME="zoomid_recordingid" TYPE="unique" FIELDS="zoomid, recordingid"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>

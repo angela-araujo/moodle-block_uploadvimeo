@@ -1082,13 +1082,22 @@ class uploadvimeo {
         $vimeo = $DB->get_record('block_uploadvimeo_account', ['id' => $account]);
         $vimeoclient = new \Vimeo\Vimeo($vimeo->clientid, $vimeo->clientsecret, $vimeo->accesstoken);
 
-        $zoom = $DB->get_record('zoom', ['meeting_id' => $notification->id]);
+        $zoom = $DB->get_record('zoom', ['meeting_id' => $notification->payload->object->id]);
 
-        if (!$hostuser = self::zoom_get_host_user($zoom, $notification->object)) {
+        if (!$hostuser = self::zoom_get_host_user($zoom, $notification->payload->object)) {
             return false;
         }
-        self::zoom_send_recordings_to_vimeo($notification->object, $hostuser, $zoom, $vimeoclient);
-
+        $files = [];
+        foreach ($notification->payload->object->recording_files as $file) {
+            if (!$DB->record_exists('block_uploadvimeo_zoom', ['recordingid' => $file->id])) {
+                $files[] = $file;
+            }
+        }
+        $recordings = (object) [
+            'download_access_token' => $notification->download_token,
+            'recording_files' => $files
+        ];
+        self::zoom_send_recordings_to_vimeo($recordings, $hostuser, $zoom, $vimeoclient);
     }
 
     public static function zoom_delete_completed($trace) {
@@ -1193,37 +1202,46 @@ class uploadvimeo {
             if (($recordingfile->recording_type == 'shared_screen_with_speaker_view') &&
                 ($recordingfile->status == 'completed')) {
 
-                // Send Zoom's download URL to Vimeo to upload using Pull Approach.
-                $result = $vimeoclient->request('/me/videos',
-                    self::upload_pull_metadata($recordingfile, $recordings, $hostuser, $zoom), 'POST');
+                // First insert without vimeoid
+                // Important for webhook that may be trigered twice.
+                $record = (object)[
+                    'zoomid' => $zoom->id,
+                    'timecreated' => time(),
+                    'recordingid' => $recordingfile->id,
+                    'vimeocompleted' => 0
+                ];
+                if ($record->id = $DB->insert_record('block_uploadvimeo_zoom', $record)) {
 
-                if ($result['status'] == 201) {
-                    if (!is_null($trace)) {
-                        $trace->output('Video sent to vimeo:' . $result['body']['uri']);
-                    }
+                    // Send Zoom's download URL to Vimeo to upload using Pull Approach.
+                    $result = $vimeoclient->request('/me/videos',
+                        self::upload_pull_metadata($recordingfile, $recordings, $hostuser, $zoom), 'POST');
 
-                    if (self::video_upload($zoom->course, $hostuser->id, $result['body']['uri'])) {
-                        $vimeovideoid = explode('/', $result['body']['uri'])[2];
-                        $record = (object)[
-                            'zoomid' => $zoom->id,
-                            'timecreated' => time(),
-                            'recordingid' => $recordingfile->id,
-                            'vimeovideoid' => $vimeovideoid,
-                            'vimeocompleted' => 0
-                        ];
-                        if ($DB->insert_record('block_uploadvimeo_zoom', $record)) {
-                            if (!is_null($trace)) {
-                                $trace->output('Upload saved:' . $zoom->id);
+                    if ($result['status'] == 201) {
+                        if (!is_null($trace)) {
+                            $trace->output('Video sent to vimeo:' . $result['body']['uri']);
+                        }
+
+                        if (self::video_upload($zoom->course, $hostuser->id, $result['body']['uri'])) {
+                            $vimeovideoid = explode('/', $result['body']['uri'])[2];
+                            $record->vimeovideoid = $vimeovideoid;
+                            if ($DB->update_record('block_uploadvimeo_zoom', $record)) {
+                                if (!is_null($trace)) {
+                                    $trace->output('Upload saved:' . $zoom->id);
+                                }
+                            } else {
+                                if (!is_null($trace)) {
+                                    $trace->output('WARNING: upload NOT saved:' . $zoom->id);
+                                }
                             }
-                        } else {
-                            if (!is_null($trace)) {
-                                $trace->output('WARNING: upload NOT saved:' . $zoom->id);
-                            }
+                        }
+                    } else {
+                        if (!is_null($trace)) {
+                            $trace->output('Video NOT sent to vimeo:' . var_export($result, true));
                         }
                     }
                 } else {
                     if (!is_null($trace)) {
-                        $trace->output('Video NOT sent to vimeo:' . var_export($result, true));
+                        $trace->output('Upload not saved:' . $zoom->id);
                     }
                 }
             }

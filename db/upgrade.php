@@ -357,5 +357,19 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021120600, 'uploadvimeo');
     }
 
+    if ($oldversion < 2021121500) {
+
+        // Define key zoomid_recordingid (unique) to be added to block_uploadvimeo_zoom.
+        $table = new xmldb_table('block_uploadvimeo_zoom');
+        $key = new xmldb_key('zoomid_recordingid', XMLDB_KEY_UNIQUE, ['zoomid', 'recordingid']);
+
+        // Launch add key zoomid_recordingid.
+        $dbman->add_key($table, $key);
+
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, 2021121500, 'uploadvimeo');
+    }
+
+
     return true;
 }

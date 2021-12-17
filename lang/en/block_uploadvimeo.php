@@ -176,4 +176,4 @@ $string['inactive'] = 'Inativa';
 $string['config_headingzoom'] = 'Zoom';
 $string['zoomupload'] = 'Upload videos from Zoom to Vimeo';
 $string['zoomdelete'] = 'Delete videos on Zoom that are completed on Vimeo';
-$string['zoom_verificationtoken'] = 'Delete videos on Zoom that are completed on Vimeo';
+$string['zoom_verificationtoken'] = 'Zoom verification token';

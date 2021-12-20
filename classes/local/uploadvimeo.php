@@ -1072,7 +1072,7 @@ class uploadvimeo {
                 $trace->output('WARNING: user not found, host_email = ' . $recordings->host_email . ' ; upload NOT saved:' . $zoom->id);
             }
 
-            $files = self::filter_recording_files($recordings->recording_files, $zoomservice);
+            $files = self::filter_recording_files($recordings->id, $recordings->recording_files, $zoomservice);
 
             foreach ($recordings->participant_audio_files as $file) {
                 $zoomservice->delete_recording($recordings->id, $file->id);
@@ -1100,10 +1100,16 @@ class uploadvimeo {
             return false;
         }
 
-        $files = self::filter_recording_files($notification->payload->object->recording_files, $zoomservice);
+        $files = self::filter_recording_files(
+            $notification->payload->object->id,
+            $notification->payload->object->recording_files,
+            $zoomservice
+        );
 
-        foreach ($notification->payload->object->participant_audio_files as $file) {
-            $zoomservice->delete_recording($notification->payload->object->id, $file->id);
+        if (isset($notification->payload->object->participant_audio_files)) {
+            foreach ($notification->payload->object->participant_audio_files as $file) {
+                $zoomservice->delete_recording($notification->payload->object->id, $file->id);
+            }
         }
 
         $recordings = (object) [
@@ -1258,15 +1264,19 @@ class uploadvimeo {
         }
     }
 
-    public static function filter_recording_files($recording_files, $zoomservice) {
+    public static function filter_recording_files($meeting_id, $recording_files, $zoomservice) {
+        global $DB;
         $files = [];
         foreach ($recording_files as $file) {
             if ($file->recording_type == 'audio_only') {
 
-                $zoomservice->delete_recording($notification->payload->object->id, $file->id);
+                try {
+                    $zoomservice->delete_recording($meeting_id, $file->id);
+                } catch (\Exception $e) {
+                }
 
-            } else if (($recordingfile->recording_type == 'shared_screen_with_speaker_view') &&
-                       ($recordingfile->status == 'completed')) {
+            } else if (($file->recording_type == 'shared_screen_with_speaker_view') &&
+                       ($file->status == 'completed')) {
 
                 if (!$DB->record_exists('block_uploadvimeo_zoom', ['recordingid' => $file->id])) {
                     $files[] = $file;

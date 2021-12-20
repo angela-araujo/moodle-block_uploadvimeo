@@ -29,7 +29,8 @@ $headers = getallheaders();
 if (!isset($headers['Authorization'])) {
    exit;
 }
-if (!$verificationtoken = get_config('zoom_verificationtoken', 'block_uploadvimeo')) {
+require ('../../config.php');
+if (!$verificationtoken = get_config('block_uploadvimeo', 'zoom_verificationtoken')) {
     exit;
 }
 if ($headers['Authorization'] != $verificationtoken) {
@@ -42,5 +43,4 @@ if (!$notification = json_decode($json, false)) {
 if (!isset($notification->payload)) {
     exit;
 }
-require ('../../config.php');
 block_uploadvimeo\local\uploadvimeo::zoom_process_webhook($notification);

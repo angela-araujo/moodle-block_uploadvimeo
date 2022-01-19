@@ -172,3 +172,5 @@ $string['deleted_success'] = 'Conta excluída com sucesso';
 $string['deleted_error'] = 'Não foi possível excluir a conta';
 $string['active'] = 'Ativa';
 $string['inactive'] = 'Inativa';
+
+$string['zoomdelete'] = 'Exclui do Zoom os vídeos concluídos no Vimeo.';

@@ -296,5 +296,80 @@ function xmldb_block_uploadvimeo_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021111800, 'uploadvimeo');
     }
 
+    if ($oldversion < 2021113000) {
+
+        $table = new xmldb_table('block_uploadvimeo_zoom');
+
+        // Define index hasrecordings (not unique) to be dropped form block_uploadvimeo_zoom.
+        $index = new xmldb_index('hasrecordings', XMLDB_INDEX_NOTUNIQUE, ['hasrecordings']);
+
+        // Conditionally launch drop index timecreated.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define field hasrecordings to be dropped from block_uploadvimeo_zoom.
+        $field = new xmldb_field('hasrecordings');
+
+        // Conditionally launch drop field hasrecordings.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field recordingid to be added to block_uploadvimeo_zoom.
+        $field = new xmldb_field('recordingid', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'timecreated');
+
+        // Conditionally launch add field recordingid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field vimeouri to be added to block_uploadvimeo_zoom.
+        $field = new xmldb_field('vimeouri', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'recordingid');
+
+        // Conditionally launch add field vimeouri.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field vimeocompleted to be added to block_uploadvimeo_zoom.
+        $field = new xmldb_field('vimeocompleted', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'vimeouri');
+
+        // Conditionally launch add field vimeocompleted.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, 2021113000, 'uploadvimeo');
+    }
+
+    if ($oldversion < 2021120600) {
+
+        // Rename field vimeouri on table block_uploadvimeo_zoom to NEWNAMEGOESHERE.
+        $table = new xmldb_table('block_uploadvimeo_zoom');
+        $field = new xmldb_field('vimeouri', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'recordingid');
+
+        // Launch rename field vimeouri to vimevideoid.
+        $dbman->rename_field($table, $field, 'vimeovideoid');
+
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, 2021120600, 'uploadvimeo');
+    }
+
+    if ($oldversion < 2021121500) {
+
+        // Define key zoomid_recordingid (unique) to be added to block_uploadvimeo_zoom.
+        $table = new xmldb_table('block_uploadvimeo_zoom');
+        $key = new xmldb_key('zoomid_recordingid', XMLDB_KEY_UNIQUE, ['zoomid', 'recordingid']);
+
+        // Launch add key zoomid_recordingid.
+        $dbman->add_key($table, $key);
+
+        // Uploadvimeo savepoint reached.
+        upgrade_block_savepoint(true, 2021121500, 'uploadvimeo');
+    }
+
+
     return true;
 }

@@ -173,4 +173,7 @@ $string['deleted_error'] = 'Não foi possível excluir a conta';
 $string['active'] = 'Ativa';
 $string['inactive'] = 'Inativa';
 
+$string['config_headingzoom'] = 'Zoom';
 $string['zoomupload'] = 'Upload videos from Zoom to Vimeo';
+$string['zoomdelete'] = 'Delete videos on Zoom that are completed on Vimeo';
+$string['zoom_verificationtoken'] = 'Zoom verification token';

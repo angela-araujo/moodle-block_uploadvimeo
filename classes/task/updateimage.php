@@ -38,6 +38,4 @@ class updateimage extends \core\task\scheduled_task {
         $trace = new \text_progress_trace();
         uploadvimeo::update_images_from_vimeo($trace);
     }
-
-    
 }

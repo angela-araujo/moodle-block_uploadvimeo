@@ -79,6 +79,9 @@ if ($ADMIN->fulltree) {
     
     $setting = new admin_setting_description('linkaccount', '', $linkaccount);
     $settings->add($setting);
+
+    $settings->add(new admin_setting_heading('block_uploadvimeo/config_headingzoom', new lang_string('config_headingzoom', 'block_uploadvimeo'), ''));
+    $settings->add(new admin_setting_configtext('block_uploadvimeo/zoom_verificationtoken', new lang_string('zoom_verificationtoken', 'block_uploadvimeo'), '', PARAM_TEXT));
     
     /*
     // Embed.

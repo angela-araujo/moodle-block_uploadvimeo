@@ -4,8 +4,13 @@
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
 [._]sw[a-p]
+
 # Temporary files including undo
 *~
-#
+
+
 # Composer support. Do not ignore composer.json, or composer.lock. These should be shipped by us.
 composer.phar
+
+/vendor
+/tests

@@ -1001,6 +1001,131 @@ class uploadvimeo {
             }
     }
     
+    /**
+     * Update video's record
+     * 
+     * 
+     * @param string $foldername
+     * @param int $accountid
+     * @param bool $verbose
+     */
+    static public function update_videos_by_folder_or_account(string $foldername='', int $accountid=-1, bool $verbose=true) {
+        global $DB;
+        
+        $params = array();
+        $where = '';
+        $countvideo['ok'] = [];
+        $countvideo['error'] = [];        
+        
+        if ($foldername) {
+            $where .= " AND f.foldernamevimeo = :foldername";
+            $params['foldername'] = $foldername;
+        }
+        
+        if ($accountid > 0) {
+            $where .= " AND a.id = :accountid";
+            $params['accountid'] = $accountid;
+        }        
+        
+        $sql = "
+              SELECT v.id, 
+                     v.videoidvimeo, 
+                     v.videonamevimeo,
+                     v.linkvideo, 
+                     v.folderid, 
+                     f.folderidvimeo, 
+                     f.foldernamevimeo,
+                     a.id accountid,
+                     a.name,
+                     a.clientid,
+                     a.clientsecret,
+                     a.accesstoken,
+                     a.app_id,
+                     a.status
+                FROM {block_uploadvimeo_videos} v
+                JOIN {block_uploadvimeo_folders} f 
+                  ON v.accountid = f.accountid 
+                 AND v.folderid = f.id
+                JOIN {block_uploadvimeo_account} a 
+                  ON f.accountid = a.id
+               WHERE 1 = 1 
+               $where";
+        $videos_to_update = $DB->get_records_sql($sql, $params);
+        
+        if (!$videos_to_update){
+            if ($verbose) {
+                mtrace(date("Y-m-d H:i:s") . "  No videos to be updated");
+            }
+            return false;
+        }
+            
+        if ($verbose) {
+            mtrace(date("Y-m-d H:i:s") . " Start update for " . count($videos_to_update) . " videos...");
+        }
+        
+        foreach ($videos_to_update as $v) {                
+
+            $client = new Vimeo($v->clientid, $v->clientsecret, $v->accesstoken);                
+            $videovimeo = $client->request('/videos/'.$v->videoidvimeo, array(), 'GET');
+            
+            if ($videovimeo['status'] != '200') { // OK
+                $countvideo['error'][] = "Account:{$v->accountid}-{$v->name} Folder:[{$v->folderidvimeo} - {$v->foldernamevimeo}] videoid:{$v->videoidvimeo} link:{$v->linkvideo} Error: {$videovimeo['status']}"; 
+                
+                continue;
+            }
+            
+            if ($videovimeo['body']['transcode']['status'] != 'complete') {
+                $countvideo['error'][] = "Account:{$v->accountid}-{$v->name} Folder:[{$v->folderidvimeo} - {$v->foldernamevimeo}] videoid:{$v->videoidvimeo} link:{$v->linkvideo} Error(transcode): {$videovimeo['body']['transcode']['status']}";
+                continue;
+            }
+            
+            $quality_size = array();
+            foreach ($videovimeo['body']['download'] as $value) {
+                $quality_size[$value['size']] = $value['public_name'];
+            }
+            ksort($quality_size, SORT_NUMERIC);
+            end($quality_size);
+            
+            $data = new \stdClass();
+            $data->id               = $v->id;
+            $data->accountid        = $v->accountid;
+            if (!$v->folderid) {
+                $folder = self::get_folder_by_name($videovimeo['parent_folder']['name']);
+                $data->forderid       = $folder->id;
+            }
+            $data->link             = $videovimeo['body']['link'];
+            $data->linkpicture      = $videovimeo['body']['pictures']['sizes'][0]['link'];
+            $data->duration         = $videovimeo['body']['duration'];
+            $data->size_bytes       = key($quality_size);
+            $data->quality          = $quality_size[key($quality_size)];
+            $data->timecreatedvimeo = strtotime($videovimeo['body']['created_time']);
+            $data->timemodified     = time();
+            
+            if ($DB->update_record('block_uploadvimeo_videos', $data) ) {
+                $countvideo['ok'][] = "Account:{$v->accountid}-{$v->name} Folder:[{$v->folderidvimeo} - {$v->foldernamevimeo}] Success videoid:{$v->videoidvimeo} link:{$data->link}";                    
+            }                
+        }
+        
+        if ($verbose) {
+            mtrace(date("Y-m-d H:i:s") . ' Resume:');
+            
+            mtrace(' Total updated ok: ' . count($countvideo['ok']) );                
+            foreach ($countvideo['ok'] as $message) {
+                mtrace('     ' . $message);
+            }
+            
+            mtrace(' Total updated error: ' . count($countvideo['error']));            
+            foreach ($countvideo['error'] as $message) {
+                mtrace('     ' . $message);
+            }
+            
+            mtrace(date("Y-m-d H:i:s") . ' Finish');
+        }
+        
+        return true;
+        
+    }
+    
     static public function delete_video_not_found_in_vimeo(int $videoid) {
         //  Status: 404 Error: The requested video couldn't be found.
         

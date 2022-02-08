@@ -53,7 +53,7 @@ $tasks = array(
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',
-        'disabled' => 0
+        'disabled' => 1
     ),
     array(
         'classname' => '\block_uploadvimeo\task\zoom_delete',
@@ -63,6 +63,6 @@ $tasks = array(
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*',
-        'disabled' => 0
+        'disabled' => 1
     ),
 );
